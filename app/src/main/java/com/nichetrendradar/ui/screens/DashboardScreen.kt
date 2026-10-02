@@ -14,6 +14,7 @@ import com.nichetrendradar.data.models.UiState
 import com.nichetrendradar.ui.components.TrendCard
 import com.nichetrendradar.viewmodel.MainViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
     LaunchedEffect(viewModel.currentNiche?.id) {
