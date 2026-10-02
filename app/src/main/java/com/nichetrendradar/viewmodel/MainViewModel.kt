@@ -21,6 +21,9 @@ class MainViewModel : ViewModel() {
     private val _savedState = MutableStateFlow<UiState<List<ContentIdea>>>(UiState.Idle)
     val savedState: StateFlow<UiState<List<ContentIdea>>> = _savedState
 
+    private val _createNicheState = MutableStateFlow<UiState<Niche>>(UiState.Idle)
+    val createNicheState: StateFlow<UiState<Niche>> = _createNicheState
+
     var currentNiche: Niche? = null
         private set
 
@@ -39,15 +42,30 @@ class MainViewModel : ViewModel() {
         onCreated: (() -> Unit)? = null
     ) {
         viewModelScope.launch {
+            _createNicheState.value = UiState.Loading
             try {
-                val niche = Niche(name = name, keywords = keywords, platforms = platforms)
+                val niche = Niche(
+                    name = name,
+                    keywords = keywords,
+                    platforms = platforms
+                )
                 val result = repository.createNiche(niche)
                 val id = (result["niche_id"] as? Number)?.toInt()
+                    ?: throw IllegalStateException("Backend did not return niche_id")
+
                 currentNiche = niche.copy(id = id)
+                _createNicheState.value = UiState.Success(currentNiche!!)
                 onCreated?.invoke()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                _createNicheState.value = UiState.Error(
+                    e.message ?: "Could not connect to the Niche Trend Radar server"
+                )
             }
         }
+    }
+
+    fun clearCreateNicheState() {
+        _createNicheState.value = UiState.Idle
     }
 
     fun fetchTrends(nicheId: Int, platform: String = selectedPlatform) {
@@ -84,7 +102,10 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.saveIdea(idea)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                _savedState.value = UiState.Error(
+                    e.message ?: "Failed to save idea"
+                )
             }
         }
     }
