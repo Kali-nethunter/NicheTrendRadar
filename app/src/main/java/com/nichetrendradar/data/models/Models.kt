@@ -16,10 +16,12 @@ data class Trend(
 )
 
 data class ContentIdea(
+    val id: Int? = null,
     val title: String,
     val hook: String,
     val outline: List<String>,
-    val cta: String
+    val cta: String,
+    val platform: String? = null
 )
 
 data class IdeaResponse(val ideas: List<ContentIdea>)
