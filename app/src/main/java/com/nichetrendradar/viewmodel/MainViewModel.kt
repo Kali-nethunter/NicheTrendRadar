@@ -98,14 +98,16 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun saveIdea(idea: ContentIdea) {
+    fun saveIdea(idea: ContentIdea, onResult: (Boolean, String) -> Unit = { _, _ -> }) {
         viewModelScope.launch {
             try {
-                repository.saveIdea(idea)
+                val result = repository.saveIdea(idea)
+                _savedState.value = UiState.Success(repository.getSavedIdeas())
+                onResult(true, result["status"] ?: "Saved to Library")
             } catch (e: Exception) {
-                _savedState.value = UiState.Error(
-                    e.message ?: "Failed to save idea"
-                )
+                val message = e.message ?: "Failed to save idea"
+                _savedState.value = UiState.Error(message)
+                onResult(false, message)
             }
         }
     }
