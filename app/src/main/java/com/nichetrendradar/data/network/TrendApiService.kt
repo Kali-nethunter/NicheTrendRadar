@@ -24,4 +24,7 @@ interface TrendApiService {
 
     @GET("api/ideas/saved")
     suspend fun getSavedIdeas(): List<ContentIdea>
+
+    @DELETE("api/ideas/{idea_id}")
+    suspend fun deleteIdea(@Path("idea_id") ideaId: Int): Map<String, String>
 }
