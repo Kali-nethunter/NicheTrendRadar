@@ -18,6 +18,7 @@ fun IdeaScreen(navController: NavController, viewModel: MainViewModel) {
     val state by viewModel.ideasState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val savedTitles = remember { mutableStateListOf<String>() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -41,12 +42,10 @@ fun IdeaScreen(navController: NavController, viewModel: MainViewModel) {
                             saved = idea.title in savedTitles,
                             onSave = {
                                 viewModel.saveIdea(idea) { success, message ->
-                                    if (success) {
-                                        if (idea.title !in savedTitles) {
-                                            savedTitles.add(idea.title)
-                                        }
+                                    if (success && idea.title !in savedTitles) {
+                                        savedTitles.add(idea.title)
                                     }
-                                    kotlinx.coroutines.MainScope().launch {
+                                    scope.launch {
                                         snackbarHostState.showSnackbar(
                                             if (success) "Saved to Library" else "Save failed: $message"
                                         )
