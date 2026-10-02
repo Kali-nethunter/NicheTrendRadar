@@ -1,13 +1,19 @@
 package com.nichetrendradar.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nichetrendradar.viewmodel.MainViewModel
@@ -15,44 +21,101 @@ import com.nichetrendradar.viewmodel.MainViewModel
 @Composable
 fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel) {
     val idea by viewModel.selectedSavedIdea.collectAsState()
-
     Column(
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+            .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        TextButton(onClick = { navController.popBackStack() }) {
-            Text("← Back to Saved Ideas")
+        TextButton(
+            onClick = { navController.popBackStack() },
+            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp)
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            Spacer(Modifier.width(8.dp))
+            Text("Back to Saved Ideas")
         }
-
+        Spacer(Modifier.height(8.dp))
         if (idea == null) {
-            Text(
-                "Saved idea not found.",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 20.dp)
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Text(
+                    "Saved idea not found.",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(20.dp)
+                )
+            }
         } else {
             val item = idea!!
+            val displayTitle = item.title.replace(
+                Regex("\\bAI\\b", RegexOption.IGNORE_CASE), "AI"
+            )
             Text(
-                item.title,
-                style = MaterialTheme.typography.headlineMedium,
+                "SAVED IDEA",
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
-
-            Spacer(Modifier.height(18.dp))
-            Text("HOOK", style = MaterialTheme.typography.labelLarge)
-            Text(item.hook, modifier = Modifier.padding(top = 6.dp))
-
-            Spacer(Modifier.height(18.dp))
-            Text("OUTLINE", style = MaterialTheme.typography.labelLarge)
-            item.outline.forEach { point ->
-                Text("• $point", modifier = Modifier.padding(top = 8.dp))
+            Spacer(Modifier.height(8.dp))
+            Text(
+                displayTitle,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(Modifier.height(24.dp))
+            DetailSectionCard("HOOK", item.hook)
+            Spacer(Modifier.height(16.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(Modifier.padding(20.dp)) {
+                    Text("OUTLINE", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.height(12.dp))
+                    item.outline.forEachIndexed { index, point ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text(
+                                (index + 1).toString(),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.width(28.dp)
+                            )
+                            Text(
+                                point,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
             }
+            Spacer(Modifier.height(16.dp))
+            DetailSectionCard("CTA", item.cta)
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
 
-            Spacer(Modifier.height(18.dp))
-            Text("CTA", style = MaterialTheme.typography.labelLarge)
-            Text(item.cta, modifier = Modifier.padding(top = 6.dp))
+@Composable
+private fun DetailSectionCard(title: String, body: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.height(10.dp))
+            Text(body, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
