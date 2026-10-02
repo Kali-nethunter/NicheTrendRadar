@@ -5,15 +5,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nichetrendradar.viewmodel.MainViewModel
@@ -21,6 +18,7 @@ import com.nichetrendradar.viewmodel.MainViewModel
 @Composable
 fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel) {
     val idea by viewModel.selectedSavedIdea.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -32,16 +30,18 @@ fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel
             onClick = { navController.popBackStack() },
             contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp)
         ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            Spacer(Modifier.width(8.dp))
-            Text("Back to Saved Ideas")
+            Text("←  Back to Saved Ideas")
         }
+
         Spacer(Modifier.height(8.dp))
+
         if (idea == null) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Text(
                     "Saved idea not found.",
@@ -55,31 +55,48 @@ fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel
             val displayTitle = item.title.replace(
                 Regex("\\bAI\\b", RegexOption.IGNORE_CASE), "AI"
             )
+
             Text(
                 "SAVED IDEA",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
+
             Spacer(Modifier.height(8.dp))
+
             Text(
                 displayTitle,
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
+
             Spacer(Modifier.height(24.dp))
+
             DetailSectionCard("HOOK", item.hook)
+
             Spacer(Modifier.height(16.dp))
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Column(Modifier.padding(20.dp)) {
-                    Text("OUTLINE", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        "OUTLINE",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
                     Spacer(Modifier.height(12.dp))
+
                     item.outline.forEachIndexed { index, point ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
                             verticalAlignment = Alignment.Top
                         ) {
                             Text(
@@ -98,8 +115,11 @@ fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel
                     }
                 }
             }
+
             Spacer(Modifier.height(16.dp))
+
             DetailSectionCard("CTA", item.cta)
+
             Spacer(Modifier.height(24.dp))
         }
     }
@@ -110,12 +130,22 @@ private fun DetailSectionCard(title: String, body: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Column(Modifier.padding(20.dp)) {
-            Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(
+                title,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
             Spacer(Modifier.height(10.dp))
-            Text(body, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                body,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
