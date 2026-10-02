@@ -8,14 +8,34 @@ import androidx.compose.ui.unit.dp
 import com.nichetrendradar.data.models.ContentIdea
 
 @Composable
-fun IdeaCard(idea: ContentIdea, onSave: () -> Unit) {
-    Card(Modifier.fillMaxWidth().padding(vertical = 8.dp), shape = MaterialTheme.shapes.large) {
+fun IdeaCard(
+    idea: ContentIdea,
+    saved: Boolean = false,
+    onSave: () -> Unit
+) {
+    Card(
+        Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        shape = MaterialTheme.shapes.large
+    ) {
         Column(Modifier.padding(18.dp)) {
-            Text(idea.title, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
+            Text(
+                idea.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
             Text("Hook: " + idea.hook, modifier = Modifier.padding(top = 8.dp))
-            idea.outline.forEach { Text("• " + it, modifier = Modifier.padding(top = 5.dp)) }
+            idea.outline.forEach {
+                Text("• " + it, modifier = Modifier.padding(top = 5.dp))
+            }
             Text("CTA: " + idea.cta, modifier = Modifier.padding(top = 8.dp))
-            Button(onClick = onSave, modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) { Text("Save to Library") }
+
+            Button(
+                onClick = onSave,
+                enabled = !saved,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            ) {
+                Text(if (saved) "Saved ✓" else "Save to Library")
+            }
         }
     }
 }
