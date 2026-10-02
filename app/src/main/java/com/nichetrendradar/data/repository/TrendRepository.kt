@@ -19,4 +19,5 @@ class TrendRepository(private val api: TrendApiService) {
 
     suspend fun saveIdea(idea: ContentIdea) = api.saveIdea(idea)
     suspend fun getSavedIdeas() = api.getSavedIdeas()
+    suspend fun deleteIdea(ideaId: Int) = api.deleteIdea(ideaId)
 }
