@@ -39,10 +39,12 @@ class Trend(BaseModel):
     source_summary: str
 
 class ContentIdea(BaseModel):
+    id: int | None = None
     title: str
     hook: str
     outline: List[str]
     cta: str
+    platform: str | None = None
 
 class IdeaResponse(BaseModel):
     ideas: List[ContentIdea]
@@ -74,9 +76,16 @@ def init_db() -> None:
                 title TEXT NOT NULL,
                 hook TEXT NOT NULL,
                 outline TEXT NOT NULL,
-                cta TEXT NOT NULL
+                cta TEXT NOT NULL,
+                platform TEXT
             )
         """)
+        columns = {
+            row["name"]
+            for row in db.execute("PRAGMA table_info(saved_ideas)").fetchall()
+        }
+        if "platform" not in columns:
+            db.execute("ALTER TABLE saved_ideas ADD COLUMN platform TEXT")
         db.commit()
 
 @app.on_event("startup")
@@ -189,6 +198,7 @@ def generate_ideas(request: dict) -> IdeaResponse:
     ideas = [
         ContentIdea(
             title=f"{trend_topic}: What Nobody Tells Beginners",
+            platform=platform,
             hook=f"Most people start with {trend_topic} the wrong way. Here is the simpler approach.",
             outline=[
                 f"Why {trend_topic} matters in {niche}",
@@ -200,6 +210,7 @@ def generate_ideas(request: dict) -> IdeaResponse:
         ),
         ContentIdea(
             title=f"5 Fast Content Ideas Around {trend_topic}",
+            platform=platform,
             hook=f"Need content for {platform}? Here are five angles you can create this week.",
             outline=[
                 "Educational explainer",
@@ -212,6 +223,7 @@ def generate_ideas(request: dict) -> IdeaResponse:
         ),
         ContentIdea(
             title=f"{trend_topic} Explained in 60 Seconds",
+            platform=platform,
             hook=f"If you have one minute, you can understand the core idea behind {trend_topic}.",
             outline=[
                 "One-line definition",
@@ -228,8 +240,8 @@ def generate_ideas(request: dict) -> IdeaResponse:
 def save_idea(idea: ContentIdea) -> dict:
     with closing(get_db()) as db:
         cursor = db.execute(
-            "INSERT INTO saved_ideas (title, hook, outline, cta) VALUES (?, ?, ?, ?)",
-            (idea.title, idea.hook, json.dumps(idea.outline), idea.cta),
+            "INSERT INTO saved_ideas (title, hook, outline, cta, platform) VALUES (?, ?, ?, ?, ?)",
+            (idea.title, idea.hook, json.dumps(idea.outline), idea.cta, idea.platform),
         )
         db.commit()
     return {"status": "saved", "idea_id": str(cursor.lastrowid)}
@@ -241,10 +253,23 @@ def get_saved_ideas() -> List[ContentIdea]:
 
     return [
         ContentIdea(
+            id=row["id"],
             title=row["title"],
             hook=row["hook"],
             outline=json.loads(row["outline"]),
             cta=row["cta"],
+            platform=row["platform"],
         )
         for row in rows
     ]
+
+@app.delete("/api/ideas/{idea_id}")
+def delete_idea(idea_id: int) -> dict:
+    with closing(get_db()) as db:
+        cursor = db.execute("DELETE FROM saved_ideas WHERE id = ?", (idea_id,))
+        db.commit()
+
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Saved idea not found")
+
+    return {"status": "deleted", "idea_id": str(idea_id)}
