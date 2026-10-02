@@ -112,6 +112,13 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    private val _selectedSavedIdea = MutableStateFlow<ContentIdea?>(null)
+    val selectedSavedIdea: StateFlow<ContentIdea?> = _selectedSavedIdea
+
+    fun selectSavedIdea(idea: ContentIdea) {
+        _selectedSavedIdea.value = idea
+    }
+
     fun loadSavedIdeas() {
         viewModelScope.launch {
             _savedState.value = UiState.Loading
