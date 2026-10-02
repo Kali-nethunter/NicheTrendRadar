@@ -12,27 +12,58 @@ import com.nichetrendradar.data.models.UiState
 import com.nichetrendradar.ui.components.IdeaCard
 import com.nichetrendradar.viewmodel.MainViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IdeaScreen(navController: NavController, viewModel: MainViewModel) {
     val state by viewModel.ideasState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val savedTitles = remember { mutableStateListOf<String>() }
 
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Text("AI Content Ideas", style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(8.dp))
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(
+            Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp)
+        ) {
+            Text("AI Content Ideas", style = MaterialTheme.typography.headlineMedium)
+            Spacer(Modifier.height(8.dp))
 
-        when (val s = state) {
-            UiState.Idle -> Text("Select a trend to generate ideas.")
-            UiState.Loading -> CircularProgressIndicator()
-            is UiState.Error -> Text("Error: " + s.message)
-            is UiState.Success -> LazyColumn {
-                items(s.data) { idea ->
-                    IdeaCard(idea) { viewModel.saveIdea(idea) }
+            when (val s = state) {
+                UiState.Idle -> Text("Select a trend to generate ideas.")
+                UiState.Loading -> CircularProgressIndicator()
+                is UiState.Error -> Text("Error: " + s.message)
+                is UiState.Success -> LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(s.data) { idea ->
+                        IdeaCard(
+                            idea = idea,
+                            saved = idea.title in savedTitles,
+                            onSave = {
+                                viewModel.saveIdea(idea) { success, message ->
+                                    if (success) {
+                                        if (idea.title !in savedTitles) {
+                                            savedTitles.add(idea.title)
+                                        }
+                                    }
+                                    kotlinx.coroutines.MainScope().launch {
+                                        snackbarHostState.showSnackbar(
+                                            if (success) "Saved to Library" else "Save failed: $message"
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
                 }
             }
-        }
 
-        TextButton(onClick = { navController.popBackStack() }) {
-            Text("Back to Trends")
+            TextButton(onClick = { navController.navigate("saved") }) {
+                Text("View Saved Ideas")
+            }
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text("Back to Trends")
+            }
         }
     }
 }
