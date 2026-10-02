@@ -119,6 +119,20 @@ class MainViewModel : ViewModel() {
         _selectedSavedIdea.value = idea
     }
 
+    fun deleteSavedIdea(ideaId: Int, onResult: (Boolean, String) -> Unit = { _, _ -> }) {
+        viewModelScope.launch {
+            try {
+                repository.deleteIdea(ideaId)
+                _savedState.value = UiState.Success(repository.getSavedIdeas())
+                _selectedSavedIdea.value = null
+                onResult(true, "Deleted from Library")
+            } catch (e: Exception) {
+                val message = e.message ?: "Failed to delete idea"
+                onResult(false, message)
+            }
+        }
+    }
+
     fun loadSavedIdeas() {
         viewModelScope.launch {
             _savedState.value = UiState.Loading
