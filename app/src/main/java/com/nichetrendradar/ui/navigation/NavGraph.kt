@@ -10,6 +10,7 @@ import com.nichetrendradar.ui.screens.LoginScreen
 import com.nichetrendradar.ui.screens.OnboardingScreen
 import com.nichetrendradar.ui.screens.ProfileScreen
 import com.nichetrendradar.ui.screens.SavedIdeasScreen
+import com.nichetrendradar.ui.screens.SavedIdeaDetailScreen
 import com.nichetrendradar.viewmodel.MainViewModel
 
 @Composable
@@ -27,6 +28,7 @@ fun NavGraph(viewModel: MainViewModel) {
         composable("dashboard") { DashboardScreen(navController, viewModel) }
         composable("ideas") { IdeaScreen(navController, viewModel) }
         composable("saved") { SavedIdeasScreen(navController, viewModel) }
+        composable("saved_detail") { SavedIdeaDetailScreen(navController, viewModel) }
         composable("profile") { ProfileScreen(navController) }
     }
 }
