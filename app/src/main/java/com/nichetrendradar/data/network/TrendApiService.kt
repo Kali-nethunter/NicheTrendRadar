@@ -4,6 +4,18 @@ import com.nichetrendradar.data.models.*
 import retrofit2.http.*
 
 interface TrendApiService {
+    @POST("api/auth/signup")
+    suspend fun signup(@Body request: AuthRequest): AuthResponse
+
+    @POST("api/auth/login")
+    suspend fun login(@Body request: AuthRequest): AuthResponse
+
+    @POST("api/auth/logout")
+    suspend fun logout(): Map<String, String>
+
+    @GET("api/auth/me")
+    suspend fun me(): AuthResponse
+
     @POST("api/niches")
     suspend fun createNiche(@Body niche: Niche): Map<String, Any>
 
