@@ -15,6 +15,15 @@ import retrofit2.HttpException
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val preferences = application.getSharedPreferences("niche_trend_radar", Context.MODE_PRIVATE)
 
+    val isLoggedIn: Boolean
+        get() = !preferences.getString("auth_token", null).isNullOrBlank()
+
+    val accountEmail: String?
+        get() = preferences.getString("account_email", null)
+
+    private val _authState = MutableStateFlow<UiState<AuthResponse>>(UiState.Idle)
+    val authState: StateFlow<UiState<AuthResponse>> = _authState
+
     private val repository = TrendRepository(RetrofitClient.instance)
 
     private val _trendsState = MutableStateFlow<UiState<List<Trend>>>(UiState.Idle)
@@ -78,6 +87,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 idea.copy(id = knownSavedIdeaIds[ideaKey(idea)])
             }
         }
+
+    fun authenticate(email: String, password: String, createAccount: Boolean, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _authState.value = UiState.Loading
+            try {
+                val response = if (createAccount) repository.signup(email, password) else repository.login(email, password)
+                preferences.edit().putString("auth_token", response.token).putString("account_email", response.email).apply()
+                _authState.value = UiState.Success(response)
+                onSuccess()
+            } catch (e: HttpException) {
+                val body = e.response()?.errorBody()?.string()?.trim()
+                _authState.value = UiState.Error(body ?: "Authentication failed (${e.code()})")
+            } catch (e: Exception) {
+                _authState.value = UiState.Error(e.message ?: "Authentication failed")
+            }
+        }
+    }
+
+    fun clearAuthState() { _authState.value = UiState.Idle }
+
+    fun logout(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            try { if (isLoggedIn) repository.logout() } catch (_: Exception) { }
+            preferences.edit().remove("auth_token").remove("account_email").remove("niche_id").remove("niche_name").remove("niche_keywords").remove("niche_platforms").apply()
+            currentNiche = null
+            _trendsState.value = UiState.Idle
+            _savedState.value = UiState.Idle
+            onComplete()
+        }
+    }
 
     fun setPlatform(platform: String) {
         selectedPlatform = platform
