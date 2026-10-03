@@ -159,10 +159,7 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                         Text("Profile", color = PrimaryBright)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Background,
-                    titleContentColor = TextPrimary
-                )
+                colors = TopAppBarDefaults.colors(containerColor = Background, titleContentColor = TextPrimary)
             )
         }
     ) { padding ->
@@ -256,13 +253,7 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                                 containerColor = Surface,
                                 labelColor = TextSecondary
                             ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = selectedPlatform == platform,
-                                borderColor = Border,
-                                selectedBorderColor = Primary
                             )
-                        )
                     }
                 }
             }
