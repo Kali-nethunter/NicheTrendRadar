@@ -106,21 +106,33 @@ fun IdeaCard(idea: ContentIdea, saved: Boolean = false, onSave: () -> Unit, onCo
                     onDismissRequest = { showPublishInfo.value = false },
                     containerColor = SurfaceElevated,
                     shape = RoundedCornerShape(26.dp),
+                    icon = {
+                        Surface(shape = RoundedCornerShape(12.dp), color = Primary.copy(alpha = .16f)) {
+                            Text("✓", color = PrimaryBright, fontWeight = FontWeight.Bold, modifier = Modifier.padding(9.dp))
+                        }
+                    },
                     title = { Text("Ready to publish", color = TextPrimary, fontWeight = FontWeight.Bold) },
                     text = {
-                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Text("Your content package is prepared with:", color = TextSecondary)
-                            listOf(
-                                "✓ Hook",
-                                "✓ Content outline",
-                                "✓ Call to action",
-                                if (idea.platform.isNullOrBlank()) "✓ Platform-ready content" else "✓ " + idea.platform + " format"
-                            ).forEach { Text(it, color = TextPrimary, fontWeight = FontWeight.SemiBold) }
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                "Copy the sections below and publish them on your selected platform.",
+                                if (idea.platform.isNullOrBlank()) "Your content package is ready." else "Your undefined content package is ready.",
+                                color = TextSecondary
+                            )
+                            Surface(
+                                shape = RoundedCornerShape(14.dp),
+                                color = Primary.copy(alpha = .10f),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text("✓  Hook", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                                    Text("✓  Content outline", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                                    Text("✓  Call to action", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                            Text(
+                                "Use the Copy buttons below, then publish.",
                                 color = TextSecondary,
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(top = 4.dp)
+                                style = MaterialTheme.typography.bodySmall
                             )
                         }
                     },
