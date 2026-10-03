@@ -108,14 +108,29 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
             AlertDialog(
                 onDismissRequest = { showSecurityInfo = false },
                 containerColor = SurfaceElevated,
+                icon = {
+                    Surface(shape = RoundedCornerShape(12.dp), color = Primary.copy(alpha = .16f)) {
+                        Text("✓", color = PrimaryBright, fontWeight = FontWeight.Bold, modifier = Modifier.padding(9.dp))
+                    }
+                },
                 title = {
                     Text("Session security", color = TextPrimary, fontWeight = FontWeight.Bold)
                 },
                 text = {
-                    Text(
-                        "Your account session is authenticated with a secure access token. Saved ideas and niches are associated with your signed-in account.",
-                        color = TextSecondary
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Your session is active and authenticated.", color = TextSecondary)
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = Primary.copy(alpha = .10f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                                Text("✓  Secure access token", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                                Text("✓  Account-linked saved data", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                        Text("Your saved ideas and niches stay linked to this account.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                    }
                 },
                 confirmButton = {
                     TextButton(onClick = { showSecurityInfo = false }) {
