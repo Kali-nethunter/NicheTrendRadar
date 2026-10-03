@@ -119,9 +119,34 @@ class MainViewModel : ViewModel() {
         _selectedSavedIdea.value = idea
     }
 
-    fun deleteSavedIdea(ideaId: Int, onResult: (Boolean, String) -> Unit = { _, _ -> }) {
+    fun deleteSavedIdea(
+        idea: ContentIdea,
+        onResult: (Boolean, String) -> Unit = { _, _ -> }
+    ) {
         viewModelScope.launch {
             try {
+                // Prefer the server ID already attached to the selected idea.
+                // If an older/stale UI object has no ID, refresh the Library first
+                // and try to recover the matching server-side record.
+                var ideaId = idea.id
+
+                if (ideaId == null) {
+                    val refreshedIdeas = repository.getSavedIdeas()
+                    val matchingIdea = refreshedIdeas.firstOrNull {
+                        it.title == idea.title &&
+                            it.hook == idea.hook &&
+                            it.cta == idea.cta &&
+                            it.outline == idea.outline
+                    }
+                    ideaId = matchingIdea?.id
+                }
+
+                if (ideaId == null) {
+                    throw IllegalStateException(
+                        "This saved idea has no server ID. Please refresh the Library and try again."
+                    )
+                }
+
                 repository.deleteIdea(ideaId)
                 _savedState.value = UiState.Success(repository.getSavedIdeas())
                 _selectedSavedIdea.value = null
