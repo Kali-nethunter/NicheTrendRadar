@@ -47,6 +47,7 @@ private fun PlatformPill(name: String, selected: Boolean, onClick: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DashboardHero(niche: String, email: String?, onChangeNiche: () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp))
