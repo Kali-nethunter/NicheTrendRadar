@@ -145,7 +145,6 @@ def root() -> HealthResponse:
 def health() -> HealthResponse:
     return HealthResponse(status="ok", service=APP_NAME, version="1.0.0")
 
-@app.post("/api/niches")
 def get_current_user(authorization: str | None) -> sqlite3.Row:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -203,6 +202,7 @@ def me(authorization: str | None = Header(default=None)) -> AuthResponse:
     user = get_current_user(authorization)
     return AuthResponse(token=authorization[7:].strip(), user_id=user["id"], email=user["email"])
 
+@app.post("/api/niches")
 def create_niche(niche: Niche, authorization: str | None = Header(default=None)) -> dict:
     user = get_current_user(authorization)
     name = niche.name.strip() or "General"
