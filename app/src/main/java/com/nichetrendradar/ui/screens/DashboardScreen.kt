@@ -159,7 +159,6 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                         Text("Profile", color = PrimaryBright)
                     }
                 },
-                colors = TopAppBarDefaults.colors(containerColor = Background, titleContentColor = TextPrimary)
             )
         }
     ) { padding ->
