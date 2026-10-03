@@ -1,6 +1,5 @@
 package com.nichetrendradar.ui.screens
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,56 +16,63 @@ import com.nichetrendradar.data.models.UiState
 import com.nichetrendradar.ui.theme.*
 import com.nichetrendradar.viewmodel.MainViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
     LaunchedEffect(Unit) { viewModel.loadSavedIdeas() }
     val state by viewModel.savedState.collectAsState()
 
-    Scaffold(
-        containerColor = Background,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text("Saved Ideas", fontWeight = FontWeight.Bold)
-                        Text("Your content library", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
-                    }
-                },
-                navigationIcon = {
-                    TextButton(onClick = { navController.popBackStack() }) {
-                        Text("Back", color = PrimaryBright, fontWeight = FontWeight.SemiBold)
-                    }
-                }
-            )
-        }
-    ) { padding ->
+    Scaffold(containerColor = Background) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Background)
                 .padding(padding)
-                .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            Spacer(Modifier.height(4.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 82.dp)
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = { navController.popBackStack() },
+                    contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp)
+                ) {
+                    Text("Back", color = PrimaryBright, fontWeight = FontWeight.SemiBold)
+                }
+
+                Spacer(Modifier.width(18.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Saved Ideas",
+                        color = TextPrimary,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "Your content library",
+                        color = TextSecondary,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
 
             when (val s = state) {
                 UiState.Idle, UiState.Loading -> {
-                    Box(
-                        Modifier.weight(1f).fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
 
                 is UiState.Error -> {
                     Box(
-                        Modifier.weight(1f).fillMaxWidth(),
+                        Modifier.fillMaxSize().padding(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "Could not load saved ideas.\n${s.message}",
+                            "Could not load saved ideas.\n" + s.message,
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -75,26 +81,29 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                 is UiState.Success -> {
                     if (s.data.isEmpty()) {
                         Box(
-                            Modifier.weight(1f).fillMaxWidth(),
+                            Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 56.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     "Your library is empty",
                                     style = MaterialTheme.typography.titleLarge,
-                                    color = MaterialTheme.colorScheme.onBackground
+                                    color = TextPrimary
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
                                     "Save an AI content idea from a trend and it will appear here.",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = TextSecondary
                                 )
                             }
                         }
                     } else {
                         LazyColumn(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(
+                                start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(s.data) { idea ->
                                 Card(
@@ -104,9 +113,7 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                                             viewModel.selectSavedIdea(idea)
                                             navController.navigate("saved_detail")
                                         },
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surface
-                                    )
+                                    colors = CardDefaults.cardColors(containerColor = Surface)
                                 ) {
                                     Column(Modifier.padding(18.dp)) {
                                         Text(
@@ -115,7 +122,8 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                                                 "AI"
                                             ),
                                             style = MaterialTheme.typography.titleMedium,
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = TextPrimary
                                         )
                                         Text(
                                             idea.hook.replace(
@@ -124,13 +132,15 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                                             ),
                                             modifier = Modifier.padding(top = 8.dp),
                                             maxLines = 3,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = TextSecondary,
+                                            style = MaterialTheme.typography.bodyLarge
                                         )
                                         Text(
                                             "Tap to view full idea →",
                                             modifier = Modifier.padding(top = 10.dp),
-                                            color = MaterialTheme.colorScheme.primary,
-                                            style = MaterialTheme.typography.labelLarge
+                                            color = PrimaryBright,
+                                            style = MaterialTheme.typography.labelLarge,
+                                            fontWeight = FontWeight.SemiBold
                                         )
                                     }
                                 }
@@ -139,8 +149,6 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                     }
                 }
             }
-
-            Spacer(Modifier.height(10.dp))
         }
     }
 }
