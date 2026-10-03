@@ -35,9 +35,12 @@ private fun MetricTile(label: String, value: String, caption: String, modifier: 
 
 @Composable
 private fun PlatformPill(name: String, selected: Boolean, onClick: () -> Unit) {
-    Surface(onClick = onClick, shape = RoundedCornerShape(16.dp),
-        color = if (selected) Primary.copy(alpha = 0.22f) else Surface,
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) PrimaryBright else Border)) {
+    Box(
+        modifier = Modifier.clip(RoundedCornerShape(16.dp))
+            .background(if (selected) Primary.copy(alpha = 0.22f) else Surface)
+            .border(1.dp, if (selected) PrimaryBright else Border, RoundedCornerShape(16.dp))
+            .clickable { onClick() }
+    ) {
         Text(name, modifier = Modifier.padding(horizontal = 18.dp, vertical = 11.dp),
             color = if (selected) TextPrimary else TextSecondary, fontWeight = FontWeight.SemiBold)
     }
