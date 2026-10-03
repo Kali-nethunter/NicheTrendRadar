@@ -24,7 +24,7 @@ import com.nichetrendradar.viewmodel.MainViewModel
 @Composable
 private fun MetricCard(label: String, value: String, supporting: String) {
     Card(
-        modifier = Modifier.width(155.dp),
+        modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = Surface)
     ) {
@@ -125,15 +125,15 @@ private fun RadarMetrics(trends: List<Trend>) {
     }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        MetricCard("Signals", trends.size.toString(), "Detected")
-        MetricCard("Avg. score", average.toString(), "Across signals")
-        MetricCard("Top score", topScore.toString(), "Highest signal")
-        MetricCard("Growing", growing.toString(), "Momentum signals")
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            MetricCard("Signals", trends.size.toString(), "Detected")
+            MetricCard("Avg. score", average.toString(), "Across signals")
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            MetricCard("Top score", topScore.toString(), "Highest signal")
+            MetricCard("Growing", growing.toString(), "Momentum signals")
+        }
     }
 }
 
