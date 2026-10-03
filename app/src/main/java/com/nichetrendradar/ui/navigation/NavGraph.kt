@@ -16,7 +16,8 @@ import com.nichetrendradar.viewmodel.MainViewModel
 @Composable
 fun NavGraph(viewModel: MainViewModel) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "login") {
+    val hasSavedNiche = viewModel.currentNiche?.id != null
+    NavHost(navController = navController, startDestination = if (hasSavedNiche) "dashboard" else "login") {
         composable("login") { LoginScreen { navController.navigate("onboarding") } }
         composable("onboarding") {
             OnboardingScreen(viewModel) {
