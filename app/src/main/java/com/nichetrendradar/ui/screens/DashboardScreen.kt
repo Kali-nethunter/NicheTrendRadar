@@ -57,6 +57,16 @@ private fun DashboardHero(niche: String, email: String?) {
             Text("Your radar is live.", color = TextPrimary, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 6.dp))
             Text("Discover signals in " + niche + " and turn momentum into content before the feed gets crowded.",
                 color = TextSecondary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 7.dp))
+            Surface(
+                onClick = { navController.navigate("onboarding") },
+                shape = RoundedCornerShape(12.dp),
+                color = Primary.copy(alpha = .12f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Primary.copy(alpha = .25f)),
+                modifier = Modifier.padding(top = 14.dp)
+            ) {
+                Text("Change niche  →", color = PrimaryBright, fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
+            }
             if (!email.isNullOrBlank()) Text(email, color = TextSecondary, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 12.dp))
         }
     }
@@ -94,6 +104,9 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                 Text("Find trends. Create faster.", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
             }
         }, actions = {
+            TextButton(onClick = { navController.navigate("onboarding") }) {
+                Text("Change niche", color = PrimaryBright, fontWeight = FontWeight.Bold)
+            }
             TextButton(onClick = { navController.navigate("profile") }) {
                 Text("Profile", color = PrimaryBright, fontWeight = FontWeight.Bold)
             }
