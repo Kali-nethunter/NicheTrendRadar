@@ -1,6 +1,8 @@
 package com.nichetrendradar.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.content.Context
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.nichetrendradar.data.models.*
 import com.nichetrendradar.data.network.RetrofitClient
@@ -10,7 +12,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+    private val preferences = application.getSharedPreferences("niche_trend_radar", Context.MODE_PRIVATE)
+
+    init {
+        currentNiche = loadSavedNiche()
+    }
     private val repository = TrendRepository(RetrofitClient.instance)
 
     private val _trendsState = MutableStateFlow<UiState<List<Trend>>>(UiState.Idle)
@@ -27,6 +34,30 @@ class MainViewModel : ViewModel() {
 
     var currentNiche: Niche? = null
         private set
+
+    private fun loadSavedNiche(): Niche? {
+        val id = preferences.getInt("niche_id", -1)
+        val name = preferences.getString("niche_name", null) ?: return null
+        val keywords = preferences.getString("niche_keywords", "")
+            ?.split("\u001F")?.filter { it.isNotBlank() } ?: emptyList()
+        val platforms = preferences.getString("niche_platforms", "")
+            ?.split("\u001F")?.filter { it.isNotBlank() } ?: emptyList()
+        return Niche(
+            id = id.takeIf { it > 0 },
+            name = name,
+            keywords = keywords,
+            platforms = platforms
+        )
+    }
+
+    private fun persistNiche(niche: Niche) {
+        preferences.edit()
+            .putInt("niche_id", niche.id ?: -1)
+            .putString("niche_name", niche.name)
+            .putString("niche_keywords", niche.keywords.joinToString("\u001F"))
+            .putString("niche_platforms", niche.platforms.joinToString("\u001F"))
+            .apply()
+    }
 
     var selectedPlatform: String = "YouTube"
         private set
@@ -71,6 +102,7 @@ class MainViewModel : ViewModel() {
                     ?: throw IllegalStateException("Backend did not return niche_id")
 
                 currentNiche = niche.copy(id = id)
+                persistNiche(currentNiche!!)
                 _createNicheState.value = UiState.Success(currentNiche!!)
                 onCreated?.invoke()
             } catch (e: Exception) {
