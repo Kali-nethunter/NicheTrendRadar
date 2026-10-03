@@ -78,8 +78,8 @@ fun IdeaScreen(navController: NavController, viewModel: MainViewModel) {
                 }
             }
             Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedButton(Modifier.weight(1f), onClick = { navController.navigate("saved") }) { Text("Saved Ideas") }
-                Button(Modifier.weight(1f), onClick = { navController.popBackStack() }) { Text("Back to Trends") }
+                OutlinedButton(onClick = { navController.navigate("saved") }, modifier = Modifier.weight(1f)) { Text("Saved Ideas") }
+                Button(onClick = { navController.popBackStack() }, modifier = Modifier.weight(1f)) { Text("Back to Trends") }
             }
         }
     }
