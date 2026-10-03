@@ -17,8 +17,8 @@ import com.nichetrendradar.viewmodel.MainViewModel
 fun NavGraph(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val hasSavedNiche = viewModel.currentNiche?.id != null
-    NavHost(navController = navController, startDestination = if (hasSavedNiche) "dashboard" else "login") {
-        composable("login") { LoginScreen { navController.navigate("onboarding") } }
+    NavHost(navController = navController, startDestination = if (viewModel.isLoggedIn) { if (hasSavedNiche) "dashboard" else "onboarding" } else "login") {
+        composable("login") { LoginScreen(viewModel) { navController.navigate("onboarding") { popUpTo("login") { inclusive = true } } } }
         composable("onboarding") {
             OnboardingScreen(viewModel) {
                 navController.navigate("dashboard") {
@@ -30,6 +30,6 @@ fun NavGraph(viewModel: MainViewModel) {
         composable("ideas") { IdeaScreen(navController, viewModel) }
         composable("saved") { SavedIdeasScreen(navController, viewModel) }
         composable("saved_detail") { SavedIdeaDetailScreen(navController, viewModel) }
-        composable("profile") { ProfileScreen(navController) }
+        composable("profile") { ProfileScreen(navController, viewModel) }
     }
 }
