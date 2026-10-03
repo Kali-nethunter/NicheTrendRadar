@@ -1,6 +1,7 @@
 package com.nichetrendradar.ui.screens
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,16 +21,35 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
     LaunchedEffect(Unit) { viewModel.loadSavedIdeas() }
     val state by viewModel.savedState.collectAsState()
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+    Scaffold(
+        containerColor = Background,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("Saved Ideas", fontWeight = FontWeight.Bold)
+                        Text("Your content library", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    }
+                },
+                navigationIcon = {
+                    TextButton(onClick = { navController.popBackStack() }) {
+                        Text("Back", color = PrimaryBright, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Background)
                 .padding(padding)
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             Text(
                 "Saved Ideas",
                 style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(Modifier.height(6.dp))
@@ -56,7 +76,7 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "Could not load saved ideas.\nundefined",
+                            "Could not load saved ideas.\n${s.message}",
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -70,13 +90,13 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    "No saved ideas yet",
+                                    "Your library is empty",
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    "Save an idea and it will appear here.",
+                                    "Save an AI content idea from a trend and it will appear here.",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -132,12 +152,7 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
 
             Spacer(Modifier.height(10.dp))
 
-            OutlinedButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Back to Ideas")
-            }
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
