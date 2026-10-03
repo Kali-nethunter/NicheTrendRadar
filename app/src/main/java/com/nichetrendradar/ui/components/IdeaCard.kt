@@ -51,7 +51,7 @@ private fun SectionCard(title: String, body: String, onCopied: () -> Unit) {
 @Composable
 fun IdeaCard(idea: ContentIdea, saved: Boolean = false, onSave: () -> Unit, onCopied: () -> Unit = {}) {
     val outlineText = idea.outline.mapIndexed { index, item -> (index + 1).toString() + ". " + normalizeAi(item) }.joinToString("\n")
-    var showPublishInfo by remember { mutableStateOf(false) }
+    val showPublishInfo = remember { mutableStateOf(false) }
     Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp), colors = CardDefaults.cardColors(containerColor = SurfaceElevated)) {
         Column(Modifier.padding(20.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -64,7 +64,7 @@ fun IdeaCard(idea: ContentIdea, saved: Boolean = false, onSave: () -> Unit, onCo
             Text(normalizeAi(idea.title), color = TextPrimary, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp))
             Surface(
-                onClick = { showPublishInfo = true },
+                onClick = { showPublishInfo.value = true },
                 shape = RoundedCornerShape(12.dp),
                 color = Primary.copy(alpha = .16f),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Primary.copy(alpha = .28f)),
@@ -101,9 +101,9 @@ fun IdeaCard(idea: ContentIdea, saved: Boolean = false, onSave: () -> Unit, onCo
                 }
             }
             SectionCard("CTA", idea.cta, onCopied)
-            if (showPublishInfo) {
+            if (showPublishInfo.value) {
                 AlertDialog(
-                    onDismissRequest = { showPublishInfo = false },
+                    onDismissRequest = { showPublishInfo.value = false },
                     containerColor = SurfaceElevated,
                     shape = RoundedCornerShape(26.dp),
                     title = { Text("Ready to publish", color = TextPrimary, fontWeight = FontWeight.Bold) },
@@ -125,7 +125,7 @@ fun IdeaCard(idea: ContentIdea, saved: Boolean = false, onSave: () -> Unit, onCo
                         }
                     },
                     confirmButton = {
-                        TextButton(onClick = { showPublishInfo = false }) {
+                        TextButton(onClick = { showPublishInfo.value = false }) {
                             Text("Done", color = PrimaryBright, fontWeight = FontWeight.Bold)
                         }
                     }
