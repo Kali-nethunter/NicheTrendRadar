@@ -16,6 +16,7 @@ import com.nichetrendradar.data.models.UiState
 import com.nichetrendradar.ui.theme.*
 import com.nichetrendradar.viewmodel.MainViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
     LaunchedEffect(Unit) { viewModel.loadSavedIdeas() }
