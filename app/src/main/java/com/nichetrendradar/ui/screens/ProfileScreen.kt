@@ -101,7 +101,9 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
             }
         }
 
-        Spacer(Modifier.weight(1f))\n\n        if (showSecurityInfo) {
+        Spacer(Modifier.weight(1f))
+
+        if (showSecurityInfo) {
             AlertDialog(
                 onDismissRequest = { showSecurityInfo = false },
                 containerColor = SurfaceElevated,
