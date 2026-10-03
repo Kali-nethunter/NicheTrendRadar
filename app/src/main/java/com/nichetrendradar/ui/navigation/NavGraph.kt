@@ -20,7 +20,7 @@ fun NavGraph(viewModel: MainViewModel) {
     NavHost(navController = navController, startDestination = if (viewModel.isLoggedIn) { if (hasSavedNiche) "dashboard" else "onboarding" } else "login") {
         composable("login") { LoginScreen(viewModel) { navController.navigate("onboarding") { popUpTo("login") { inclusive = true } } } }
         composable("onboarding") {
-            OnboardingScreen(viewModel) {
+            OnboardingScreen(viewModel, navController) {
                 navController.navigate("dashboard") {
                     popUpTo("onboarding") { inclusive = true }
                 }
