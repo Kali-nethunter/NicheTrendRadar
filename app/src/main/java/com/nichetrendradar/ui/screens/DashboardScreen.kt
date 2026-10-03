@@ -24,7 +24,16 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
     val trendsState by viewModel.trendsState.collectAsState()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Trend Radar") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Trend Radar") },
+                actions = {
+                    TextButton(onClick = { navController.navigate("profile") }) {
+                        Text("Profile")
+                    }
+                }
+            )
+        }
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             Row(
