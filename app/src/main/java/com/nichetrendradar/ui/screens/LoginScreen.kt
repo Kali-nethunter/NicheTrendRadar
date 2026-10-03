@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.json.JSONObject
 import com.nichetrendradar.data.models.UiState
 import com.nichetrendradar.ui.theme.*
 import com.nichetrendradar.viewmodel.MainViewModel
@@ -189,7 +190,14 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
 
                 if (authState is UiState.Error) {
                     Text(
-                        (authState as UiState.Error).message,
+                        run {
+                            val raw = (authState as UiState.Error).message
+                            try {
+                                JSONObject(raw).optString("detail").ifBlank { raw }
+                            } catch (_: Exception) {
+                                raw
+                            }
+                        },
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 12.dp)
