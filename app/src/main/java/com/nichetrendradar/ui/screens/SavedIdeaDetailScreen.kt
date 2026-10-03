@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import com.nichetrendradar.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel) {
     val idea by viewModel.selectedSavedIdea.collectAsState()
