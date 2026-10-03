@@ -66,8 +66,7 @@ fun OnboardingScreen(viewModel: MainViewModel, onComplete: () -> Unit) {
         Spacer(Modifier.height(34.dp))
 
         Text(
-            "Build your
-trend radar.",
+            "Build your\ntrend radar.",
             style = MaterialTheme.typography.displaySmall,
             color = TextPrimary,
             fontWeight = FontWeight.Bold
