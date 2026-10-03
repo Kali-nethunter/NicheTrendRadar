@@ -11,6 +11,9 @@ import kotlinx.coroutines.launch
 import androidx.navigation.NavController
 import com.nichetrendradar.data.models.UiState
 import com.nichetrendradar.ui.components.IdeaCard
+import com.nichetrendradar.ui.theme.Background
+import com.nichetrendradar.ui.theme.PrimaryBright
+import com.nichetrendradar.ui.theme.TextSecondary
 import com.nichetrendradar.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,14 +25,27 @@ fun IdeaScreen(navController: NavController, viewModel: MainViewModel) {
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        containerColor = Background,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("AI Content Ideas", fontWeight = FontWeight.Bold)
+                        Text("Turn a trend into publishable content", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    }
+                },
+                navigationIcon = {
+                    TextButton(onClick = { navController.popBackStack() }) {
+                        Text("Back", color = PrimaryBright, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp)
+            Modifier.fillMaxSize().padding(padding)
         ) {
-            Text("AI Content Ideas", style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(8.dp))
-
             when (val s = state) {
                 UiState.Idle -> Text("Select a trend to generate ideas.")
                 UiState.Loading -> CircularProgressIndicator()
@@ -58,11 +74,16 @@ fun IdeaScreen(navController: NavController, viewModel: MainViewModel) {
                 }
             }
 
-            TextButton(onClick = { navController.navigate("saved") }) {
-                Text("View Saved Ideas")
-            }
-            TextButton(onClick = { navController.popBackStack() }) {
-                Text("Back to Trends")
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OutlinedButton(modifier = Modifier.weight(1f), onClick = { navController.navigate("saved") }) {
+                    Text("Saved Ideas")
+                }
+                Button(modifier = Modifier.weight(1f), onClick = { navController.popBackStack() }) {
+                    Text("Back to Trends")
+                }
             }
         }
     }
