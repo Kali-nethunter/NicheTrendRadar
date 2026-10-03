@@ -124,8 +124,7 @@ private fun RadarMetrics(trends: List<Trend>) {
         label.contains("grow") || label.contains("ris")
     }
 
-    Row(
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             MetricCard("Signals", trends.size.toString(), "Detected")
             MetricCard("Avg. score", average.toString(), "Across signals")
