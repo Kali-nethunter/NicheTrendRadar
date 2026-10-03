@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 APP_NAME = "Niche Trend Radar API"
 DB_PATH = Path(os.getenv("DATABASE_PATH", str(Path(__file__).with_name("niche_trend_radar.db"))))
 
-app = FastAPI(title=APP_NAME, version="1.0.0", description="Backend API for the Niche Trend Radar Android app.")
+app = FastAPI(title=APP_NAME, version="1.0.1", description="Backend API for the Niche Trend Radar Android app.")
 
 app.add_middleware(
     CORSMiddleware,
