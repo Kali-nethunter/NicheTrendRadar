@@ -20,6 +20,7 @@ import com.nichetrendradar.ui.theme.TextPrimary
 import com.nichetrendradar.ui.theme.TextSecondary
 import com.nichetrendradar.viewmodel.MainViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IdeaScreen(navController: NavController, viewModel: MainViewModel) {
     val state by viewModel.ideasState.collectAsState()
