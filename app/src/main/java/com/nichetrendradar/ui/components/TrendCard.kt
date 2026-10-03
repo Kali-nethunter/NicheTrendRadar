@@ -2,25 +2,28 @@ package com.nichetrendradar.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nichetrendradar.data.models.Trend
+import com.nichetrendradar.ui.theme.*
 
 @Composable
 fun TrendCard(trend: Trend, onClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clickable(onClick = onClick), shape = MaterialTheme.shapes.large) {
-        Column(Modifier.padding(16.dp)) {
+    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick), shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = Surface)) {
+        Column(Modifier.padding(18.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(trend.growth_label, color = MaterialTheme.colorScheme.primary)
-                Text("Score: " + trend.score, fontWeight = FontWeight.Bold)
+                Surface(shape = RoundedCornerShape(10.dp), color = Primary.copy(alpha = .18f)) {
+                    Text(trend.growth_label.uppercase(), color = PrimaryBright, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                }
+                Text("SCORE " + trend.score, color = TextPrimary, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             }
-            Text(trend.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 8.dp))
-            Text(trend.source_summary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp))
+            Text(trend.title, color = TextPrimary, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 13.dp))
+            Text(trend.source_summary, color = TextSecondary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 7.dp))
+            Text("Generate content ideas  →", color = PrimaryBright, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 14.dp))
         }
     }
 }
