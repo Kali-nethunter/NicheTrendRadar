@@ -21,16 +21,19 @@ object RetrofitClient {
     private val client by lazy {
         OkHttpClient.Builder()
             .addInterceptor { chain ->
+                val original = chain.request()
                 val token = if (::appContext.isInitialized) {
                     appContext.getSharedPreferences("niche_trend_radar", Context.MODE_PRIVATE)
                         .getString("auth_token", null)
                 } else null
-                val request = chain.request().newBuilder().apply {
-                    if (!token.isNullOrBlank() && !request().url.encodedPath.contains("/api/auth/login") && !request().url.encodedPath.contains("/api/auth/signup")) {
-                        addHeader("Authorization", "Bearer $token")
-                    }
-                }.build()
-                chain.proceed(request)
+                val builder = original.newBuilder()
+                if (!token.isNullOrBlank() &&
+                    !original.url.encodedPath.contains("/api/auth/login") &&
+                    !original.url.encodedPath.contains("/api/auth/signup")
+                ) {
+                    builder.addHeader("Authorization", "Bearer $token")
+                }
+                chain.proceed(builder.build())
             }
             .addInterceptor(logging)
             .build()
@@ -40,7 +43,7 @@ object RetrofitClient {
         Retrofit.Builder()
             .baseUrl(ApiConfig.getBaseUrl())
             .addConverterFactory(GsonConverterFactory.create())
-.client(client)
+            .client(client)
             .build()
             .create(TrendApiService::class.java)
     }
