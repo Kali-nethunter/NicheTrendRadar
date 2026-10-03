@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -61,7 +60,7 @@ private fun RadarPreview() {
 private fun ProgressStep(number: String, title: String, active: Boolean) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.weight(1f)
+        modifier = Modifier
     ) {
         Box(
             modifier = Modifier
@@ -87,6 +86,7 @@ private fun ProgressStep(number: String, title: String, active: Boolean) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(viewModel: MainViewModel, onComplete: () -> Unit) {
     var niche by remember { mutableStateOf("") }
@@ -122,7 +122,7 @@ fun OnboardingScreen(viewModel: MainViewModel, onComplete: () -> Unit) {
 
         Spacer(Modifier.height(18.dp))
 
-        Row(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             ProgressStep("1", "Your niche", active = true)
             ProgressStep("2", "Your radar", active = false)
         }
@@ -167,7 +167,7 @@ fun OnboardingScreen(viewModel: MainViewModel, onComplete: () -> Unit) {
                             .background(SurfaceElevated),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = PrimaryBright)
+                        Text("✦", color = PrimaryBright, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     }
                     Column(Modifier.padding(start = 12.dp)) {
                         Text(
