@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -98,6 +100,7 @@ fun OnboardingScreen(viewModel: MainViewModel, onComplete: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
     ) {
         Spacer(Modifier.height(22.dp))
@@ -272,6 +275,6 @@ fun OnboardingScreen(viewModel: MainViewModel, onComplete: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(28.dp))
     }
 }
