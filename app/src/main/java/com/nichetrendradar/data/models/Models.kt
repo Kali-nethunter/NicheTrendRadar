@@ -25,3 +25,7 @@ data class ContentIdea(
 )
 
 data class IdeaResponse(val ideas: List<ContentIdea>)
+
+
+data class AuthRequest(val email: String, val password: String)
+data class AuthResponse(val token: String, val user_id: Int, val email: String)
