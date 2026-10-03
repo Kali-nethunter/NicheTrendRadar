@@ -105,9 +105,6 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                 Text("Find trends. Create faster.", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
             }
         }, actions = {
-            TextButton(onClick = { navController.navigate("onboarding") }) {
-                Text("Change niche", color = PrimaryBright, fontWeight = FontWeight.Bold)
-            }
             TextButton(onClick = { navController.navigate("profile") }) {
                 Text("Profile", color = PrimaryBright, fontWeight = FontWeight.Bold)
             }
