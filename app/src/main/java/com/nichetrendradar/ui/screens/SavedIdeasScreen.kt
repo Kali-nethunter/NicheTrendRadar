@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,128 +23,57 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
     LaunchedEffect(Unit) { viewModel.loadSavedIdeas() }
     val state by viewModel.savedState.collectAsState()
 
-    Scaffold(containerColor = Background) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Background)
-                .padding(padding)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 82.dp)
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(
-                    onClick = { navController.popBackStack() },
-                    contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp)
-                ) {
-                    Text("Back", color = PrimaryBright, fontWeight = FontWeight.SemiBold)
-                }
-
-                Spacer(Modifier.width(18.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        "Saved Ideas",
-                        color = TextPrimary,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "Your content library",
-                        color = TextSecondary,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+    Scaffold(containerColor = Background, topBar = {
+        TopAppBar(title = {
+            Column {
+                Text("Saved Library", color = TextPrimary, fontWeight = FontWeight.Bold)
+                Text("Your ideas, ready when you are.", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
+            }
+        }, navigationIcon = {
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text("Back", color = PrimaryBright, fontWeight = FontWeight.Bold)
+            }
+        })
+    }) { padding ->
+        when (val s = state) {
+            UiState.Idle, UiState.Loading -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Primary)
+            }
+            is UiState.Error -> Box(Modifier.fillMaxSize().padding(padding).padding(24.dp), contentAlignment = Alignment.Center) {
+                Card(colors = CardDefaults.cardColors(containerColor = Surface), shape = RoundedCornerShape(24.dp)) {
+                    Text("Could not load saved ideas.\n" + s.message, color = TextSecondary, modifier = Modifier.padding(22.dp))
                 }
             }
-
-            when (val s = state) {
-                UiState.Idle, UiState.Loading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    }
-                }
-
-                is UiState.Error -> {
-                    Box(
-                        Modifier.fillMaxSize().padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "Could not load saved ideas.\n" + s.message,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-
-                is UiState.Success -> {
-                    if (s.data.isEmpty()) {
-                        Box(
-                            Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 56.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    "Your library is empty",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = TextPrimary
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    "Save an AI content idea from a trend and it will appear here.",
-                                    color = TextSecondary
-                                )
-                            }
+            is UiState.Success -> {
+                if (s.data.isEmpty()) {
+                    Box(Modifier.fillMaxSize().padding(padding).padding(24.dp), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Your library is empty", color = TextPrimary, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Text("Save an AI content idea from the Content Studio.", color = TextSecondary, modifier = Modifier.padding(top = 8.dp))
                         }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(
-                                start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp
-                            ),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(s.data) { idea ->
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            viewModel.selectSavedIdea(idea)
-                                            navController.navigate("saved_detail")
-                                        },
-                                    colors = CardDefaults.cardColors(containerColor = Surface)
-                                ) {
-                                    Column(Modifier.padding(18.dp)) {
-                                        Text(
-                                            idea.title.replace(
-                                                Regex("\\bAI\\b", RegexOption.IGNORE_CASE),
-                                                "AI"
-                                            ),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = TextPrimary
-                                        )
-                                        Text(
-                                            idea.hook.replace(
-                                                Regex("\\bai\\b", RegexOption.IGNORE_CASE),
-                                                "AI"
-                                            ),
-                                            modifier = Modifier.padding(top = 8.dp),
-                                            maxLines = 3,
-                                            color = TextSecondary,
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
-                                        Text(
-                                            "Tap to view full idea →",
-                                            modifier = Modifier.padding(top = 10.dp),
-                                            color = PrimaryBright,
-                                            style = MaterialTheme.typography.labelLarge,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
+                    }
+                } else {
+                    LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        item {
+                            Text(s.data.size.toString() + " saved ideas", color = PrimaryBright, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                        }
+                        items(s.data) { idea ->
+                            Card(modifier = Modifier.fillMaxWidth().clickable {
+                                viewModel.selectSavedIdea(idea)
+                                navController.navigate("saved_detail")
+                            }, shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = SurfaceElevated)) {
+                                Column(Modifier.padding(20.dp)) {
+                                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Surface(shape = RoundedCornerShape(10.dp), color = Primary.copy(alpha = .18f)) {
+                                            Text((idea.platform ?: "GENERAL").uppercase(), color = PrimaryBright, style = MaterialTheme.typography.labelSmall,
+                                                fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                                        }
+                                        Text("OPEN →", color = PrimaryBright, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                                     }
+                                    Text(idea.title.replace(Regex("\\bAI\\b", RegexOption.IGNORE_CASE), "AI"),
+                                        color = TextPrimary, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 14.dp))
+                                    Text(idea.hook.replace(Regex("\\bai\\b", RegexOption.IGNORE_CASE), "AI"),
+                                        color = TextSecondary, style = MaterialTheme.typography.bodyMedium, maxLines = 3, modifier = Modifier.padding(top = 7.dp))
                                 }
                             }
                         }
