@@ -12,6 +12,7 @@ FastAPI backend for the existing Android app.
 - POST /api/ideas/generate
 - POST /api/ideas/save
 - GET /api/ideas/saved
+- DELETE /api/ideas/{idea_id}
 
 ## Local run
 
