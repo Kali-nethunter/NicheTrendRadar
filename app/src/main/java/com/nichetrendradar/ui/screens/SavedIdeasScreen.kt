@@ -10,9 +10,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nichetrendradar.data.models.UiState
+import com.nichetrendradar.ui.theme.*
 import com.nichetrendradar.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,19 +48,7 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                 .padding(padding)
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            Text(
-                "Saved Ideas",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                "Your saved content ideas",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(4.dp))
 
             when (val s = state) {
                 UiState.Idle, UiState.Loading -> {
@@ -149,8 +139,6 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
                     }
                 }
             }
-
-            Spacer(Modifier.height(10.dp))
 
             Spacer(Modifier.height(10.dp))
         }
