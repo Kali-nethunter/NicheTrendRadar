@@ -3,12 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import secrets
 import sqlite3
 from contextlib import closing
 from pathlib import Path
 from typing import List
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -49,6 +50,15 @@ class ContentIdea(BaseModel):
 class IdeaResponse(BaseModel):
     ideas: List[ContentIdea]
 
+class AuthRequest(BaseModel):
+    email: str
+    password: str
+
+class AuthResponse(BaseModel):
+    token: str
+    user_id: int
+    email: str
+
 class HealthResponse(BaseModel):
     status: str
     service: str
@@ -59,15 +69,44 @@ def get_db() -> sqlite3.Connection:
     connection.row_factory = sqlite3.Row
     return connection
 
+def hash_password(password: str, salt: bytes | None = None) -> str:
+    salt = salt or secrets.token_bytes(16)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 120_000)
+    return salt.hex() + "$" + digest.hex()
+
+def verify_password(password: str, stored: str) -> bool:
+    try:
+        salt_hex, digest_hex = stored.split("$", 1)
+        digest = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt_hex), 120_000)
+        return secrets.compare_digest(digest.hex(), digest_hex)
+    except (ValueError, TypeError):
+        return False
+
 def init_db() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with closing(get_db()) as db:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS sessions (
+                token TEXT PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
         db.execute("""
             CREATE TABLE IF NOT EXISTS niches (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 keywords TEXT NOT NULL,
-                platforms TEXT NOT NULL
+                platforms TEXT NOT NULL,
+                user_id INTEGER
             )
         """)
         db.execute("""
@@ -86,6 +125,12 @@ def init_db() -> None:
         }
         if "platform" not in columns:
             db.execute("ALTER TABLE saved_ideas ADD COLUMN platform TEXT")
+        niche_columns = {row["name"] for row in db.execute("PRAGMA table_info(niches)").fetchall()}
+        if "user_id" not in niche_columns:
+            db.execute("ALTER TABLE niches ADD COLUMN user_id INTEGER")
+        idea_columns = {row["name"] for row in db.execute("PRAGMA table_info(saved_ideas)").fetchall()}
+        if "user_id" not in idea_columns:
+            db.execute("ALTER TABLE saved_ideas ADD COLUMN user_id INTEGER")
         db.commit()
 
 @app.on_event("startup")
@@ -101,15 +146,73 @@ def health() -> HealthResponse:
     return HealthResponse(status="ok", service=APP_NAME, version="1.0.0")
 
 @app.post("/api/niches")
-def create_niche(niche: Niche) -> dict:
+def get_current_user(authorization: str | None) -> sqlite3.Row:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    token = authorization[7:].strip()
+    with closing(get_db()) as db:
+        row = db.execute(
+            "SELECT users.* FROM sessions JOIN users ON users.id = sessions.user_id WHERE sessions.token = ?",
+            (token,),
+        ).fetchone()
+    if row is None:
+        raise HTTPException(status_code=401, detail="Invalid or expired session")
+    return row
+
+@app.post("/api/auth/signup", response_model=AuthResponse)
+def signup(request: AuthRequest) -> AuthResponse:
+    email = request.email.strip().lower()
+    if "@" not in email or len(email) < 5:
+        raise HTTPException(status_code=400, detail="Enter a valid email address")
+    if len(request.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    token = secrets.token_urlsafe(32)
+    with closing(get_db()) as db:
+        if db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone():
+            raise HTTPException(status_code=409, detail="An account with this email already exists")
+        cursor = db.execute("INSERT INTO users (email, password_hash) VALUES (?, ?)", (email, hash_password(request.password)))
+        user_id = cursor.lastrowid
+        db.execute("INSERT INTO sessions (token, user_id) VALUES (?, ?)", (token, user_id))
+        db.execute("UPDATE niches SET user_id = ? WHERE user_id IS NULL", (user_id,))
+        db.execute("UPDATE saved_ideas SET user_id = ? WHERE user_id IS NULL", (user_id,))
+        db.commit()
+    return AuthResponse(token=token, user_id=user_id, email=email)
+
+@app.post("/api/auth/login", response_model=AuthResponse)
+def login(request: AuthRequest) -> AuthResponse:
+    email = request.email.strip().lower()
+    with closing(get_db()) as db:
+        user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+        if user is None or not verify_password(request.password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Incorrect email or password")
+        token = secrets.token_urlsafe(32)
+        db.execute("INSERT INTO sessions (token, user_id) VALUES (?, ?)", (token, user["id"]))
+        db.commit()
+    return AuthResponse(token=token, user_id=user["id"], email=email)
+
+@app.post("/api/auth/logout")
+def logout(authorization: str | None = Header(default=None)) -> dict:
+    if authorization and authorization.startswith("Bearer "):
+        with closing(get_db()) as db:
+            db.execute("DELETE FROM sessions WHERE token = ?", (authorization[7:].strip(),))
+            db.commit()
+    return {"status": "logged_out"}
+
+@app.get("/api/auth/me", response_model=AuthResponse)
+def me(authorization: str | None = Header(default=None)) -> AuthResponse:
+    user = get_current_user(authorization)
+    return AuthResponse(token=authorization[7:].strip(), user_id=user["id"], email=user["email"])
+
+def create_niche(niche: Niche, authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
     name = niche.name.strip() or "General"
     keywords = [k.strip() for k in niche.keywords if k.strip()]
     platforms = [p.strip() for p in niche.platforms if p.strip()]
 
     with closing(get_db()) as db:
         cursor = db.execute(
-            "INSERT INTO niches (name, keywords, platforms) VALUES (?, ?, ?)",
-            (name, json.dumps(keywords), json.dumps(platforms)),
+            "INSERT INTO niches (name, keywords, platforms, user_id) VALUES (?, ?, ?, ?)",
+            (name, json.dumps(keywords), json.dumps(platforms), user["id"]),
         )
         db.commit()
         niche_id = cursor.lastrowid
@@ -117,9 +220,10 @@ def create_niche(niche: Niche) -> dict:
     return {"niche_id": niche_id}
 
 @app.get("/api/niches", response_model=List[Niche])
-def get_niches() -> List[Niche]:
+def get_niches(authorization: str | None = Header(default=None)) -> List[Niche]:
+    user = get_current_user(authorization)
     with closing(get_db()) as db:
-        rows = db.execute("SELECT * FROM niches ORDER BY id DESC").fetchall()
+        rows = db.execute("SELECT * FROM niches WHERE user_id = ? ORDER BY id DESC", (user["id"],)).fetchall()
 
     return [
         Niche(
@@ -171,9 +275,11 @@ def make_trends(niche: Niche, platform: str) -> List[Trend]:
 def get_trends(
     niche_id: int = Query(..., ge=1),
     platform: str = Query("YouTube", min_length=1),
+    authorization: str | None = Header(default=None),
 ) -> List[Trend]:
+    user = get_current_user(authorization)
     with closing(get_db()) as db:
-        row = db.execute("SELECT * FROM niches WHERE id = ?", (niche_id,)).fetchone()
+        row = db.execute("SELECT * FROM niches WHERE id = ? AND user_id = ?", (niche_id, user["id"])).fetchone()
 
     if row is None:
         raise HTTPException(status_code=404, detail="Niche not found")
@@ -237,19 +343,21 @@ def generate_ideas(request: dict) -> IdeaResponse:
     return IdeaResponse(ideas=ideas)
 
 @app.post("/api/ideas/save")
-def save_idea(idea: ContentIdea) -> dict:
+def save_idea(idea: ContentIdea, authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
     with closing(get_db()) as db:
         cursor = db.execute(
-            "INSERT INTO saved_ideas (title, hook, outline, cta, platform) VALUES (?, ?, ?, ?, ?)",
-            (idea.title, idea.hook, json.dumps(idea.outline), idea.cta, idea.platform),
+            "INSERT INTO saved_ideas (title, hook, outline, cta, platform, user_id) VALUES (?, ?, ?, ?, ?, ?)",
+            (idea.title, idea.hook, json.dumps(idea.outline), idea.cta, idea.platform, user["id"]),
         )
         db.commit()
     return {"status": "saved", "idea_id": str(cursor.lastrowid)}
 
 @app.get("/api/ideas/saved", response_model=List[ContentIdea])
-def get_saved_ideas() -> List[ContentIdea]:
+def get_saved_ideas(authorization: str | None = Header(default=None)) -> List[ContentIdea]:
+    user = get_current_user(authorization)
     with closing(get_db()) as db:
-        rows = db.execute("SELECT * FROM saved_ideas ORDER BY id DESC").fetchall()
+        rows = db.execute("SELECT * FROM saved_ideas WHERE user_id = ? ORDER BY id DESC", (user["id"],)).fetchall()
 
     return [
         ContentIdea(
@@ -264,9 +372,10 @@ def get_saved_ideas() -> List[ContentIdea]:
     ]
 
 @app.delete("/api/ideas/{idea_id}")
-def delete_idea(idea_id: int) -> dict:
+def delete_idea(idea_id: int, authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
     with closing(get_db()) as db:
-        cursor = db.execute("DELETE FROM saved_ideas WHERE id = ?", (idea_id,))
+        cursor = db.execute("DELETE FROM saved_ideas WHERE id = ? AND user_id = ?", (idea_id, user["id"]))
         db.commit()
 
     if cursor.rowcount == 0:
