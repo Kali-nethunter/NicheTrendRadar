@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nichetrendradar.data.network.RetrofitClient
 import com.nichetrendradar.ui.navigation.NavGraph
 import com.nichetrendradar.ui.theme.NicheTrendRadarTheme
 import com.nichetrendradar.viewmodel.MainViewModel
@@ -11,6 +12,7 @@ import com.nichetrendradar.viewmodel.MainViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RetrofitClient.initialize(applicationContext)
         setContent {
             NicheTrendRadarTheme {
                 val vm: MainViewModel = viewModel()
