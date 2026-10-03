@@ -81,7 +81,7 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
                 Text("Account & privacy", color = TextPrimary, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text("Your saved ideas and niches stay connected to this account.", color = TextSecondary, style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 5.dp))
-                HorizontalDivider(color = Border, modifier = Modifier.padding(vertical = 15.dp))
+                Divider(color = Border, modifier = Modifier.padding(vertical = 15.dp))
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("Session", color = TextPrimary, fontWeight = FontWeight.SemiBold)
