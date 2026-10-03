@@ -4,6 +4,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.text.KeyboardOptions
@@ -80,10 +82,11 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(32.dp))
 
         RadarMark()
 
@@ -244,6 +247,6 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
             modifier = Modifier.padding(top = 16.dp)
         )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(28.dp))
     }
 }
