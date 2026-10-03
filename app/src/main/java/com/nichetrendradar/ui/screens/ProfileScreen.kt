@@ -22,6 +22,7 @@ import com.nichetrendradar.viewmodel.MainViewModel
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
     var loggingOut by remember { mutableStateOf(false) }
+    var showSecurityInfo by remember { mutableStateOf(false) }
     val email = viewModel.accountEmail ?: "Account"
     val initial = email.take(1).uppercase()
 
@@ -87,15 +88,41 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
                         Text("Session", color = TextPrimary, fontWeight = FontWeight.SemiBold)
                         Text("Authenticated", color = PrimaryBright, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 2.dp))
                     }
-                    Surface(shape = RoundedCornerShape(10.dp), color = Primary.copy(alpha = .14f)) {
-                        Text("SECURE", color = PrimaryBright, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp))
+                    Surface(
+                        onClick = { showSecurityInfo = true },
+                        shape = RoundedCornerShape(12.dp),
+                        color = Primary.copy(alpha = .14f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Primary.copy(alpha = .28f))
+                    ) {
+                        Text("SECURE  ›", color = PrimaryBright, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
                     }
                 }
             }
         }
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(1f))\n\n        if (showSecurityInfo) {
+            AlertDialog(
+                onDismissRequest = { showSecurityInfo = false },
+                containerColor = SurfaceElevated,
+                title = {
+                    Text("Session security", color = TextPrimary, fontWeight = FontWeight.Bold)
+                },
+                text = {
+                    Text(
+                        "Your account session is authenticated with a secure access token. Saved ideas and niches are associated with your signed-in account.",
+                        color = TextSecondary
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { showSecurityInfo = false }) {
+                        Text("Done", color = PrimaryBright, fontWeight = FontWeight.Bold)
+                    }
+                }
+            )
+        }
+
+
 
         OutlinedButton(
             onClick = {
