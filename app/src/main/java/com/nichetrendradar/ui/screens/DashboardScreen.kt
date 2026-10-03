@@ -101,17 +101,13 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
     Scaffold(containerColor = Background, topBar = {
         TopAppBar(title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { navController.navigate("onboarding") }) {
-                    Text("Back", color = PrimaryBright, fontWeight = FontWeight.Bold)
+                IconButton(onClick = { navController.navigate("onboarding") }) {
+                    Text("<", color = PrimaryBright, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 }
                 Column {
                     Text("Trend Radar", color = TextPrimary, fontWeight = FontWeight.Bold)
                     Text("Find trends. Create faster.", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
                 }
-            }
-        }, actions = {
-            TextButton(onClick = { navController.navigate("profile") }) {
-                Text("Profile", color = PrimaryBright, fontWeight = FontWeight.Bold)
             }
         })
     }) { padding ->
