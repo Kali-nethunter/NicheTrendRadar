@@ -48,7 +48,7 @@ private fun PlatformPill(name: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun DashboardHero(niche: String, email: String?) {
+private fun DashboardHero(niche: String, email: String?, onChangeNiche: () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp))
         .background(Brush.linearGradient(listOf(SurfaceElevated, Color(0xFF1D1740), Surface)))
         .border(1.dp, Border, RoundedCornerShape(28.dp)).padding(22.dp)) {
@@ -58,7 +58,7 @@ private fun DashboardHero(niche: String, email: String?) {
             Text("Discover signals in " + niche + " and turn momentum into content before the feed gets crowded.",
                 color = TextSecondary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 7.dp))
             Surface(
-                onClick = { navController.navigate("onboarding") },
+                onClick = onChangeNiche,
                 shape = RoundedCornerShape(12.dp),
                 color = Primary.copy(alpha = .12f),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Primary.copy(alpha = .25f)),
@@ -115,7 +115,7 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
         LazyColumn(modifier = Modifier.fillMaxSize().background(Background).padding(padding),
             contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)) {
-            item { DashboardHero(nicheName, viewModel.accountEmail) }
+            item { DashboardHero(nicheName, viewModel.accountEmail) { navController.navigate("onboarding") } }
             item {
                 when (val s = trendsState) {
                     is UiState.Success -> MetricsPanel(s.data)
