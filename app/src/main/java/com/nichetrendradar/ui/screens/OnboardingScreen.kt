@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
+import androidx.navigation.NavController
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,7 +91,7 @@ private fun ProgressStep(number: String, title: String, active: Boolean) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OnboardingScreen(viewModel: MainViewModel, onComplete: () -> Unit) {
+fun OnboardingScreen(viewModel: MainViewModel, navController: NavController, onComplete: () -> Unit) {
     var niche by remember { mutableStateOf("") }
     var keywords by remember { mutableStateOf("") }
     val createState by viewModel.createNicheState.collectAsState()
@@ -116,6 +117,10 @@ fun OnboardingScreen(viewModel: MainViewModel, onComplete: () -> Unit) {
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.weight(1f))
+            TextButton(onClick = { navController.navigate("profile") }) {
+                Text("Profile", color = PrimaryBright, fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.width(6.dp))
             Text(
                 "1 of 2",
                 color = TextSecondary,
