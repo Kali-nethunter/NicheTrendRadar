@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import com.nichetrendradar.ui.theme.*
 import com.nichetrendradar.viewmodel.MainViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
     var loggingOut by remember { mutableStateOf(false) }
