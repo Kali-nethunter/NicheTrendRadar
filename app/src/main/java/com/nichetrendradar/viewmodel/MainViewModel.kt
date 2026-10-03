@@ -15,9 +15,6 @@ import retrofit2.HttpException
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val preferences = application.getSharedPreferences("niche_trend_radar", Context.MODE_PRIVATE)
 
-    init {
-        currentNiche = loadSavedNiche()
-    }
     private val repository = TrendRepository(RetrofitClient.instance)
 
     private val _trendsState = MutableStateFlow<UiState<List<Trend>>>(UiState.Idle)
@@ -34,6 +31,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var currentNiche: Niche? = null
         private set
+
+    init {
+        currentNiche = loadSavedNiche()
+    }
 
     private fun loadSavedNiche(): Niche? {
         val id = preferences.getInt("niche_id", -1)
