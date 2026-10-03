@@ -5,6 +5,8 @@
         android:name=".TrendRadarApp"
         android:allowBackup="true"
         android:label="Niche Trend Radar"
+        android:icon="@drawable/ic_ntr_launcher"
+        android:roundIcon="@drawable/ic_ntr_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.NicheTrendRadar"
         android:usesCleartextTraffic="true">
