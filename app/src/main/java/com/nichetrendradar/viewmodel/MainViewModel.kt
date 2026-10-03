@@ -31,6 +31,22 @@ class MainViewModel : ViewModel() {
     var selectedPlatform: String = "YouTube"
         private set
 
+    // Preserve IDs returned by save even when a legacy backend omits IDs in GET responses.
+    private val knownSavedIdeaIds = mutableMapOf<String, Int>()
+
+    private fun ideaKey(idea: ContentIdea): String =
+        listOf(idea.title, idea.hook, idea.outline.joinToString("\u001F"), idea.cta).joinToString("\u001E")
+
+    private fun attachKnownIds(ideas: List<ContentIdea>): List<ContentIdea> =
+        ideas.map { idea ->
+            if (idea.id != null) {
+                knownSavedIdeaIds[ideaKey(idea)] = idea.id
+                idea
+            } else {
+                idea.copy(id = knownSavedIdeaIds[ideaKey(idea)])
+            }
+        }
+
     fun setPlatform(platform: String) {
         selectedPlatform = platform
         currentNiche?.id?.let { fetchTrends(it, platform) }
@@ -103,7 +119,12 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val result = repository.saveIdea(idea)
-                _savedState.value = UiState.Success(repository.getSavedIdeas())
+                result["idea_id"]?.toIntOrNull()?.let { savedId ->
+                    knownSavedIdeaIds[ideaKey(idea)] = savedId
+                }
+                _savedState.value = UiState.Success(
+                    attachKnownIds(repository.getSavedIdeas())
+                )
                 onResult(true, result["status"] ?: "Saved to Library")
             } catch (e: Exception) {
                 val message = e.message ?: "Failed to save idea"
@@ -149,7 +170,10 @@ class MainViewModel : ViewModel() {
                 }
 
                 repository.deleteIdea(ideaId)
-                _savedState.value = UiState.Success(repository.getSavedIdeas())
+                knownSavedIdeaIds.remove(ideaKey(idea))
+                _savedState.value = UiState.Success(
+                    attachKnownIds(repository.getSavedIdeas())
+                )
                 _selectedSavedIdea.value = null
                 onResult(true, "Deleted from Library")
             } catch (e: Exception) {
@@ -173,7 +197,9 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             _savedState.value = UiState.Loading
             try {
-                _savedState.value = UiState.Success(repository.getSavedIdeas())
+                _savedState.value = UiState.Success(
+                    attachKnownIds(repository.getSavedIdeas())
+                )
             } catch (e: Exception) {
                 _savedState.value =
                     UiState.Error(e.message ?: "Failed to load saved ideas")
