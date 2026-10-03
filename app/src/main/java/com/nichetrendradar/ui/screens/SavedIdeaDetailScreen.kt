@@ -220,9 +220,9 @@ fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val id = idea?.id
-                        if (id != null) {
-                            viewModel.deleteSavedIdea(id) { success, message ->
+                        val selectedIdea = idea
+                        if (selectedIdea != null) {
+                            viewModel.deleteSavedIdea(selectedIdea) { success, message ->
                                 if (success) {
                                     navController.popBackStack()
                                 } else {
@@ -232,6 +232,12 @@ fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel
                                         )
                                     }
                                 }
+                            }
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "Delete failed: saved idea is no longer available"
+                                )
                             }
                         }
                         showDeleteDialog = false
