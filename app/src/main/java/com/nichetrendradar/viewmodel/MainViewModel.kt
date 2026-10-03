@@ -8,6 +8,7 @@ import com.nichetrendradar.data.repository.TrendRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class MainViewModel : ViewModel() {
     private val repository = TrendRepository(RetrofitClient.instance)
@@ -152,7 +153,17 @@ class MainViewModel : ViewModel() {
                 _selectedSavedIdea.value = null
                 onResult(true, "Deleted from Library")
             } catch (e: Exception) {
-                val message = e.message ?: "Failed to delete idea"
+                val message = when (e) {
+                    is HttpException -> {
+                        val body = e.response()?.errorBody()?.string()?.trim()
+                        if (!body.isNullOrEmpty()) {
+                            "Server error ${e.code()}: $body"
+                        } else {
+                            "Server error ${e.code()}: ${e.message()}"
+                        }
+                    }
+                    else -> e.message ?: "Failed to delete idea"
+                }
                 onResult(false, message)
             }
         }
