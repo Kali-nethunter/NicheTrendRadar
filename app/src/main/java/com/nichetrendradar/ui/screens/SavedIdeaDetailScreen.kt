@@ -228,7 +228,7 @@ fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel
                                 } else {
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            "Delete failed: \$message"
+                                            "Delete failed: $message"
                                         )
                                     }
                                 }
