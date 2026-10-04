@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,17 +100,24 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
     val nicheName = viewModel.currentNiche?.name ?: "your niche"
 
     Scaffold(containerColor = Background, topBar = {
-        TopAppBar(title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { navController.navigate("onboarding") }) {
-                    Text("<", color = PrimaryBright, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                }
+        TopAppBar(
+            title = {
                 Column {
                     Text("Trend Radar", color = TextPrimary, fontWeight = FontWeight.Bold)
                     Text("Find trends. Create faster.", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
                 }
+            },
+            navigationIcon = {},
+            actions = {
+                IconButton(onClick = { navController.navigate("onboarding") }) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.automirrored.filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = PrimaryBright
+                    )
+                }
             }
-        })
+        )
     }) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().background(Background).padding(padding),
             contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
