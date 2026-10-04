@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.navigation.NavController
 import androidx.compose.runtime.*
@@ -117,15 +118,21 @@ fun OnboardingScreen(viewModel: MainViewModel, navController: NavController, onC
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.weight(1f))
-            TextButton(onClick = { navController.navigate("profile") }) {
-                Text("Profile", color = PrimaryBright, fontWeight = FontWeight.Bold)
+            IconButton(
+                onClick = { navController.navigate("profile") },
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(SurfaceElevated)
+                    .border(1.dp, Border, CircleShape)
+            ) {
+                Icon(
+                    Icons.Default.Person,
+                    contentDescription = "Profile",
+                    tint = PrimaryBright,
+                    modifier = Modifier.size(25.dp)
+                )
             }
-            Spacer(Modifier.width(6.dp))
-            Text(
-                "1 of 2",
-                color = TextSecondary,
-                style = MaterialTheme.typography.labelMedium
-            )
         }
 
         Spacer(Modifier.height(18.dp))
