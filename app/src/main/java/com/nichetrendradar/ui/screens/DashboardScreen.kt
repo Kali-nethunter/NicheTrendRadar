@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -110,10 +109,11 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
             navigationIcon = {},
             actions = {
                 IconButton(onClick = { navController.navigate("onboarding") }) {
-                    Icon(
-                        imageVector = androidx.compose.material.icons.filled.KeyboardArrowLeft,
-                        contentDescription = "Back",
-                        tint = PrimaryBright
+                    Text(
+                        "‹",
+                        color = PrimaryBright,
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
