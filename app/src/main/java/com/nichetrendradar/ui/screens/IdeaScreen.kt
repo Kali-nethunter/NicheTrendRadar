@@ -35,8 +35,6 @@ fun IdeaScreen(navController: NavController, viewModel: MainViewModel) {
                     Text("AI Content Studio", color = TextPrimary, fontWeight = FontWeight.Bold)
                     Text("Turn a trend into publishable content", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
                 }
-            }, navigationIcon = {
-                TextButton(onClick = { navController.popBackStack() }) { Text("Back", color = PrimaryBright, fontWeight = FontWeight.Bold) }
             })
         }) { padding ->
         Column(Modifier.fillMaxSize().background(Background).padding(padding)) {
