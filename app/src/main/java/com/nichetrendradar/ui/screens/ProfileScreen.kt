@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,8 +39,15 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
                 Text("Profile", color = TextPrimary, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
                 Text("Your radar account", color = TextSecondary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
             }
-            TextButton(onClick = { navController.popBackStack() }) {
-                Text("Close", color = PrimaryBright, fontWeight = FontWeight.Bold)
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "Close profile",
+                    tint = PrimaryBright
+                )
             }
         }
 
