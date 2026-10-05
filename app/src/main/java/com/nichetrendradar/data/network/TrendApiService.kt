@@ -52,7 +52,7 @@ interface TrendApiService {
     @DELETE("api/ideas/{idea_id}")
     suspend fun deleteIdea(@Path("idea_id") ideaId: Int): Map<String, String>
 
-    @DELETE("api/ideas/saved")
+    @DELETE("api/ideas/clear")
     suspend fun clearSavedIdeas(): Map<String, String>
 
     @DELETE("api/radar/history")
