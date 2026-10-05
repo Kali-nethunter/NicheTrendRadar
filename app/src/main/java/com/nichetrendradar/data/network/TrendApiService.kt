@@ -16,6 +16,18 @@ interface TrendApiService {
     @GET("api/auth/me")
     suspend fun me(): AuthResponse
 
+    @POST("api/auth/change-password")
+    suspend fun changePassword(@Body request: Map<String, String>): Map<String, String>
+
+    @POST("api/auth/logout-all")
+    suspend fun logoutAll(): Map<String, String>
+
+    @DELETE("api/auth/account")
+    suspend fun deleteAccount(): Map<String, String>
+
+    @GET("api/account/export")
+    suspend fun exportAccount(): Map<String, Any>
+
     @POST("api/niches")
     suspend fun createNiche(@Body niche: Niche): Map<String, Any>
 
@@ -39,4 +51,10 @@ interface TrendApiService {
 
     @DELETE("api/ideas/{idea_id}")
     suspend fun deleteIdea(@Path("idea_id") ideaId: Int): Map<String, String>
+
+    @DELETE("api/ideas/saved")
+    suspend fun clearSavedIdeas(): Map<String, String>
+
+    @DELETE("api/radar/history")
+    suspend fun clearRadarHistory(): Map<String, String>
 }
