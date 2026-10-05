@@ -110,6 +110,15 @@ def init_db() -> None:
             )
         """)
         db.execute("""
+            CREATE TABLE IF NOT EXISTS radar_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                niche_id INTEGER NOT NULL,
+                platform TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        db.execute("""
             CREATE TABLE IF NOT EXISTS saved_ideas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
@@ -284,6 +293,10 @@ def get_trends(
     if row is None:
         raise HTTPException(status_code=404, detail="Niche not found")
 
+    with closing(get_db()) as db:
+        db.execute("INSERT INTO radar_history (user_id, niche_id, platform) VALUES (?, ?, ?)", (user["id"], niche_id, platform.strip() or "YouTube"))
+        db.commit()
+
     niche = Niche(
         id=row["id"],
         name=row["name"],
@@ -382,3 +395,71 @@ def delete_idea(idea_id: int, authorization: str | None = Header(default=None)) 
         raise HTTPException(status_code=404, detail="Saved idea not found")
 
     return {"status": "deleted", "idea_id": str(idea_id)}
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+@app.post("/api/auth/change-password")
+def change_password(request: ChangePasswordRequest, authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
+    if len(request.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+    if not verify_password(request.current_password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+    with closing(get_db()) as db:
+        db.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(request.new_password), user["id"]))
+        db.commit()
+    return {"status": "password_changed"}
+
+@app.post("/api/auth/logout-all")
+def logout_all(authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
+    current_token = authorization[7:].strip()
+    with closing(get_db()) as db:
+        db.execute("DELETE FROM sessions WHERE user_id = ? AND token != ?", (user["id"], current_token))
+        db.commit()
+    return {"status": "other_sessions_signed_out"}
+
+@app.get("/api/account/export")
+def export_account(authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
+    with closing(get_db()) as db:
+        niches = db.execute("SELECT id, name, keywords, platforms, user_id FROM niches WHERE user_id = ? ORDER BY id DESC", (user["id"],)).fetchall()
+        ideas = db.execute("SELECT id, title, hook, outline, cta, platform FROM saved_ideas WHERE user_id = ? ORDER BY id DESC", (user["id"],)).fetchall()
+        history = db.execute("SELECT id, niche_id, platform, created_at FROM radar_history WHERE user_id = ? ORDER BY id DESC", (user["id"],)).fetchall()
+    return {
+        "account": {"user_id": user["id"], "email": user["email"], "created_at": user["created_at"]},
+        "niches": [{"id": r["id"], "name": r["name"], "keywords": json.loads(r["keywords"]), "platforms": json.loads(r["platforms"])} for r in niches],
+        "saved_ideas": [{"id": r["id"], "title": r["title"], "hook": r["hook"], "outline": json.loads(r["outline"]), "cta": r["cta"], "platform": r["platform"]} for r in ideas],
+        "radar_history": [{"id": r["id"], "niche_id": r["niche_id"], "platform": r["platform"], "created_at": r["created_at"]} for r in history],
+    }
+
+@app.delete("/api/ideas/saved")
+def clear_saved_ideas(authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
+    with closing(get_db()) as db:
+        cursor = db.execute("DELETE FROM saved_ideas WHERE user_id = ?", (user["id"],))
+        db.commit()
+    return {"status": "cleared", "deleted": cursor.rowcount}
+
+@app.delete("/api/radar/history")
+def clear_radar_history(authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
+    with closing(get_db()) as db:
+        cursor = db.execute("DELETE FROM radar_history WHERE user_id = ?", (user["id"],))
+        db.commit()
+    return {"status": "cleared", "deleted": cursor.rowcount}
+
+@app.delete("/api/auth/account")
+def delete_account(authorization: str | None = Header(default=None)) -> dict:
+    user = get_current_user(authorization)
+    with closing(get_db()) as db:
+        db.execute("DELETE FROM sessions WHERE user_id = ?", (user["id"],))
+        db.execute("DELETE FROM saved_ideas WHERE user_id = ?", (user["id"],))
+        db.execute("DELETE FROM niches WHERE user_id = ?", (user["id"],))
+        db.execute("DELETE FROM radar_history WHERE user_id = ?", (user["id"],))
+        db.execute("DELETE FROM users WHERE id = ?", (user["id"],))
+        db.commit()
+    return {"status": "account_deleted"}
