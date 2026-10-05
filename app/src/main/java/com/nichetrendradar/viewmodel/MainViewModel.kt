@@ -265,6 +265,83 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    fun changePassword(currentPassword: String, newPassword: String, onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.changePassword(currentPassword, newPassword)
+                onResult(true, "Password changed successfully")
+            } catch (e: HttpException) {
+                val body = e.response()?.errorBody()?.string()?.trim()
+                onResult(false, body ?: ("Could not change password (" + e.code() + ")"))
+            } catch (e: Exception) {
+                onResult(false, e.message ?: "Could not change password")
+            }
+        }
+    }
+
+    fun signOutAllDevices(onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.logoutAll()
+                onResult(true, "All other sessions have been signed out")
+            } catch (e: Exception) {
+                onResult(false, e.message ?: "Could not sign out other sessions")
+            }
+        }
+    }
+
+    fun clearSavedIdeas(onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.clearSavedIdeas()
+                knownSavedIdeaIds.clear()
+                _savedState.value = UiState.Success(emptyList())
+                onResult(true, "Saved ideas cleared")
+            } catch (e: Exception) {
+                onResult(false, e.message ?: "Could not clear saved ideas")
+            }
+        }
+    }
+
+    fun clearRadarHistory(onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.clearRadarHistory()
+                onResult(true, "Radar history cleared")
+            } catch (e: Exception) {
+                onResult(false, e.message ?: "Could not clear radar history")
+            }
+        }
+    }
+
+    fun exportAccount(onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val data = repository.exportAccount()
+                val json = org.json.JSONObject(data).toString(2)
+                onResult(true, json)
+            } catch (e: Exception) {
+                onResult(false, e.message ?: "Could not export account data")
+            }
+        }
+    }
+
+    fun deleteAccount(onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.deleteAccount()
+                preferences.edit().clear().apply()
+                currentNiche = null
+                _trendsState.value = UiState.Idle
+                _savedState.value = UiState.Idle
+                onResult(true, "Account deleted")
+            } catch (e: Exception) {
+                onResult(false, e.message ?: "Could not delete account")
+            }
+        }
+    }
+
     fun loadSavedIdeas() {
         viewModelScope.launch {
             _savedState.value = UiState.Loading
