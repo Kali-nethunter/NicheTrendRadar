@@ -162,7 +162,7 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
             Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(containerColor = Surface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Border)) {
-                ProfileRow(Icons.Filled.Lock, "Session security", "Authenticated and account-linked") { showSecurityInfo = true }
+                ProfileRow(Icons.Filled.Lock, "Security & Privacy", "Session, authentication, data controls and privacy") { navController.navigate("security_privacy") }
             }
         }
 
@@ -171,7 +171,7 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
             Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(containerColor = Surface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Border)) {
-                ProfileRow(Icons.Filled.Person, "Account & privacy", "Your saved ideas and radar stay connected to this account")
+                ProfileRow(Icons.Filled.Person, "Account & Privacy", "Account details, privacy preferences and data controls") { navController.navigate("account_privacy") }
             }
         }
 
@@ -180,7 +180,7 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
             Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(containerColor = Surface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Border)) {
-                ProfileRow(Icons.Filled.Check, "Help & support", "FAQ, feedback and app information") { showHelpInfo = true }
+                ProfileRow(Icons.Filled.Check, "Help & Support", "FAQ, contact support, report a problem and feedback") { navController.navigate("help_support") }
             }
         }
 
@@ -211,29 +211,4 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
         }
     }
 
-    if (showSecurityInfo) {
-        AlertDialog(onDismissRequest = { showSecurityInfo = false }, containerColor = SurfaceElevated,
-            title = { Text("Session security", color = TextPrimary, fontWeight = FontWeight.Bold) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Your session is active and authenticated.", color = TextSecondary)
-                    Text("✓ Secure access token", color = TextPrimary, fontWeight = FontWeight.SemiBold)
-                    Text("✓ Account-linked saved data", color = TextPrimary, fontWeight = FontWeight.SemiBold)
-                }
-            },
-            confirmButton = { TextButton(onClick = { showSecurityInfo = false }) {
-                Text("Done", color = PrimaryBright, fontWeight = FontWeight.Bold)
-            } })
-    }
-
-    if (showHelpInfo) {
-        AlertDialog(onDismissRequest = { showHelpInfo = false }, containerColor = SurfaceElevated,
-            title = { Text("Help & support", color = TextPrimary, fontWeight = FontWeight.Bold) },
-            text = {
-                Text("Use your radar to discover trends, generate content ideas and save the best concepts to your library. Support contact can be connected in a later update.", color = TextSecondary)
-            },
-            confirmButton = { TextButton(onClick = { showHelpInfo = false }) {
-                Text("Done", color = PrimaryBright, fontWeight = FontWeight.Bold)
-            } })
-    }
 }
