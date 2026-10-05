@@ -93,7 +93,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _authState.value = UiState.Loading
             try {
                 val response = if (createAccount) repository.signup(email, password) else repository.login(email, password)
-                preferences.edit().putString("auth_token", response.token).putString("account_email", response.email).apply()
+                preferences.edit().putString("auth_token", response.token).putString("account_email", response.email).putInt("user_id", response.user_id).apply()
                 _authState.value = UiState.Success(response)
                 onSuccess()
             } catch (e: HttpException) {
@@ -110,7 +110,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun logout(onComplete: () -> Unit) {
         viewModelScope.launch {
             try { if (isLoggedIn) repository.logout() } catch (_: Exception) { }
-            preferences.edit().remove("auth_token").remove("account_email").remove("niche_id").remove("niche_name").remove("niche_keywords").remove("niche_platforms").apply()
+            preferences.edit().remove("auth_token").remove("account_email").remove("user_id").remove("niche_id").remove("niche_name").remove("niche_keywords").remove("niche_platforms").apply()
             currentNiche = null
             _trendsState.value = UiState.Idle
             _savedState.value = UiState.Idle
