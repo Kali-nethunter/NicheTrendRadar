@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.nichetrendradar.ui.theme.*
+import com.nichetrendradar.viewmodel.MainViewModel
 
 private enum class SettingsMode { SECURITY, ACCOUNT, HELP }
 
