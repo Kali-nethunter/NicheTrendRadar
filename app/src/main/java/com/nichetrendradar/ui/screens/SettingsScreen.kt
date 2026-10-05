@@ -258,6 +258,74 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
             dismissButton = { TextButton(onClick = { deleteDialog = false }) { Text("Cancel", color = TextSecondary) } })
     }
 
+    if (changePasswordDialog) {
+        var currentPassword by remember { mutableStateOf("") }
+        var newPassword by remember { mutableStateOf("") }
+        var confirmPassword by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { changePasswordDialog = false },
+            containerColor = SurfaceElevated,
+            title = { Text("Change Password", color = TextPrimary, fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(currentPassword, { currentPassword = it }, label = { Text("Current password") }, singleLine = true)
+                    OutlinedTextField(newPassword, { newPassword = it }, label = { Text("New password") }, singleLine = true)
+                    OutlinedTextField(confirmPassword, { confirmPassword = it }, label = { Text("Confirm new password") }, singleLine = true)
+                    Text("Minimum 8 characters.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (newPassword.length < 8) info = "New password must be at least 8 characters"
+                    else if (newPassword != confirmPassword) info = "New passwords do not match"
+                    else {
+                        viewModel.changePassword(currentPassword, newPassword) { _, message -> info = message }
+                        changePasswordDialog = false
+                    }
+                }) { Text("Change Password", color = PrimaryBright) }
+            },
+            dismissButton = { TextButton(onClick = { changePasswordDialog = false }) { Text("Cancel", color = TextSecondary) } }
+        )
+    }
+
+    if (confirmClearSaved) {
+        AlertDialog(
+            onDismissRequest = { confirmClearSaved = false },
+            containerColor = SurfaceElevated,
+            title = { Text("Clear saved ideas?", color = TextPrimary, fontWeight = FontWeight.Bold) },
+            text = { Text("Every saved idea in your Library will be permanently removed.", color = TextSecondary) },
+            confirmButton = { TextButton(onClick = { confirmClearSaved = false; viewModel.clearSavedIdeas { _, message -> info = message } }) { Text("Clear", color = PrimaryBright) } },
+            dismissButton = { TextButton(onClick = { confirmClearSaved = false }) { Text("Cancel", color = TextSecondary) } }
+        )
+    }
+
+    if (confirmClearHistory) {
+        AlertDialog(
+            onDismissRequest = { confirmClearHistory = false },
+            containerColor = SurfaceElevated,
+            title = { Text("Clear radar history?", color = TextPrimary, fontWeight = FontWeight.Bold) },
+            text = { Text("Stored radar activity for this account will be removed.", color = TextSecondary) },
+            confirmButton = { TextButton(onClick = { confirmClearHistory = false; viewModel.clearRadarHistory { _, message -> info = message } }) { Text("Clear History", color = PrimaryBright) } },
+            dismissButton = { TextButton(onClick = { confirmClearHistory = false }) { Text("Cancel", color = TextSecondary) } }
+        )
+    }
+
+    if (confirmDeleteAccount) {
+        AlertDialog(
+            onDismissRequest = { confirmDeleteAccount = false },
+            containerColor = SurfaceElevated,
+            title = { Text("Delete your account permanently?", color = TextPrimary, fontWeight = FontWeight.Bold) },
+            text = { Text("This removes your profile, saved ideas, radar configuration, radar history and active sessions. This cannot be undone.", color = TextSecondary) },
+            confirmButton = { TextButton(onClick = {
+                confirmDeleteAccount = false
+                viewModel.deleteAccount { ok, message ->
+                    if (ok) navController.navigate("login") { popUpTo(0) { inclusive = true } } else info = message
+                }
+            }) { Text("Delete Account", color = PrimaryBright) } },
+            dismissButton = { TextButton(onClick = { confirmDeleteAccount = false }) { Text("Cancel", color = TextSecondary) } }
+        )
+    }
+
     info?.let { message ->
         AlertDialog(onDismissRequest = { info = null }, containerColor = SurfaceElevated,
             title = { Text(when (screenMode) { SettingsMode.SECURITY -> "Security & Privacy"; SettingsMode.ACCOUNT -> "Account & Privacy"; SettingsMode.HELP -> "Help & Support" }, color = TextPrimary, fontWeight = FontWeight.Bold) },
