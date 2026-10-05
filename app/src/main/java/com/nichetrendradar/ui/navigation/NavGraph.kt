@@ -10,7 +10,8 @@ import com.nichetrendradar.ui.screens.LoginScreen
 import com.nichetrendradar.ui.screens.OnboardingScreen
 import com.nichetrendradar.ui.screens.ProfileScreen
 import com.nichetrendradar.ui.screens.SavedIdeasScreen
-import com.nichetrendradar.ui.screens.SavedIdeaDetailScreen\nimport com.nichetrendradar.ui.screens.SettingsScreen
+import com.nichetrendradar.ui.screens.SavedIdeaDetailScreen
+import com.nichetrendradar.ui.screens.SettingsScreen
 import com.nichetrendradar.viewmodel.MainViewModel
 
 @Composable
@@ -30,6 +31,9 @@ fun NavGraph(viewModel: MainViewModel) {
         composable("ideas") { IdeaScreen(navController, viewModel) }
         composable("saved") { SavedIdeasScreen(navController, viewModel) }
         composable("saved_detail") { SavedIdeaDetailScreen(navController, viewModel) }
-        composable("profile") { ProfileScreen(navController, viewModel) }\n        composable("security_privacy") { SettingsScreen(navController, "security", viewModel) }\n        composable("account_privacy") { SettingsScreen(navController, "account", viewModel) }\n        composable("help_support") { SettingsScreen(navController, "help", viewModel) }
+        composable("profile") { ProfileScreen(navController, viewModel) }
+        composable("security_privacy") { SettingsScreen(navController, "security", viewModel) }
+        composable("account_privacy") { SettingsScreen(navController, "account", viewModel) }
+        composable("help_support") { SettingsScreen(navController, "help", viewModel) }
     }
 }
