@@ -2,6 +2,12 @@ package com.nichetrendradar.ui.screens
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
+import android.os.Environment
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -106,6 +112,12 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
                 }}
                 item { Section("Password & Authentication") {
                     RowItem(Icons.Filled.Lock, "Change password", "Update your account password") { changePasswordDialog = true }
+                    RowItem(Icons.Filled.Check, "2FA / biometric authentication", "Protect this device with biometric authentication") { info = "Biometric protection is ready to be connected to the device lock in the next security build." }
+                }}
+                item { Section("Data Privacy") {
+                    RowItem(Icons.Filled.Person, "What data the app stores", "Account, radar configuration and saved ideas") {
+                        info = "The app stores account information, selected niche, keywords, platforms and saved content ideas needed for the app experience."
+                    }
                     RowItem(Icons.Filled.Check, "How trend/search data is used", "Used to request radar results and content ideas") {
                         info = "Your niche, keywords and selected platform provide context for trend requests and AI-generated content ideas."
                     }
@@ -117,7 +129,49 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
                     }
                 }}
                 item { Section("Data Controls") {
-                    RowItem(Icons.Filled.Check, "Download my data", "Export account data as JSON") { viewModel.exportAccount { ok, data -> if (ok) { val share = Intent(Intent.ACTION_SEND).apply { type = "application/json"; putExtra(Intent.EXTRA_TEXT, data) }; runCatching { context.startActivity(Intent.createChooser(share, "Export account data")) } } else info = data } }
+                    RowItem(Icons.Filled.Check, "Download my data", "Export account data as PDF") {
+                        viewModel.exportAccount { ok, data ->
+                            if (ok) {
+                                runCatching {
+                                    val pdf = PdfDocument()
+                                    val pageWidth = 595
+                                    val pageHeight = 842
+                                    val margin = 40f
+                                    val paint = Paint().apply { textSize = 12f; color = android.graphics.Color.DKGRAY }
+                                    val titlePaint = Paint().apply { textSize = 20f; isFakeBoldText = true; color = android.graphics.Color.BLACK }
+                                    val lines = data.lines()
+                                    var pageNumber = 1
+                                    var index = 0
+                                    while (index < lines.size) {
+                                        val page = pdf.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
+                                        val canvas = page.canvas
+                                        canvas.drawText("Niche Trend Radar — My Data", margin, 50f, titlePaint)
+                                        canvas.drawText("Account data export", margin, 72f, paint)
+                                        var y = 100f
+                                        while (index < lines.size && y < pageHeight - 55f) {
+                                            val line = lines[index].take(90)
+                                            canvas.drawText(line, margin, y, paint)
+                                            y += 18f
+                                            index++
+                                        }
+                                        canvas.drawText("Page $pageNumber", margin, pageHeight - 25f, paint)
+                                        pdf.finishPage(page)
+                                        pageNumber++
+                                    }
+                                    val dir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) ?: context.filesDir
+                                    val file = File(dir, "NicheTrendRadar_MyData.pdf")
+                                    FileOutputStream(file).use { pdf.writeTo(it) }
+                                    pdf.close()
+                                    val share = Intent(Intent.ACTION_SEND).apply {
+                                        type = "application/pdf"
+                                        putExtra(Intent.EXTRA_STREAM, androidx.core.content.FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file))
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    }
+                                    context.startActivity(Intent.createChooser(share, "Share your data PDF"))
+                                }.onFailure { info = "PDF export failed: ${it.message ?: "Unknown error"}" }
+                            } else info = data
+                        }
+                    }
                     RowItem(Icons.Filled.Check, "Clear saved ideas", "Remove every saved idea from your Library") { confirmClearSaved = true }
                     RowItem(Icons.Filled.Check, "Clear search / radar history", "Remove stored radar activity") { confirmClearHistory = true }
                     RowItem(Icons.Filled.Close, "Delete account", "Permanently remove your account and data") { confirmDeleteAccount = true }
