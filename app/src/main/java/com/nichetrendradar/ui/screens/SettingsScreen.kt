@@ -177,15 +177,9 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
                     RowItem(Icons.Filled.Close, "Delete account", "Permanently remove your account and data") { confirmDeleteAccount = true }
                 }}
                 item { Section("Privacy Documents") {
-                    RowItem(Icons.Filled.Check, "Privacy Policy", "How account and app data is handled") {
-                        info = "Add your published Privacy Policy URL here before public launch."
-                    }
-                    RowItem(Icons.Filled.Check, "Terms of Service", "Rules for using Niche Trend Radar") {
-                        info = "Add your published Terms of Service URL here before public launch."
-                    }
-                    RowItem(Icons.Filled.Check, "Data Usage Policy", "How data supports radar and AI features") {
-                        info = "Add your published Data Usage Policy URL here before public launch."
-                    }
+                    RowItem(Icons.Filled.Check, "Privacy Policy", "How account and app data is handled") { navController.navigate("privacy_policy") }
+                    RowItem(Icons.Filled.Check, "Terms of Service", "Rules for using Niche Trend Radar") { navController.navigate("terms_of_service") }
+                    RowItem(Icons.Filled.Check, "Data Usage Policy", "How data supports radar and AI features") { navController.navigate("data_usage_policy") }
                 }}
             }
 
@@ -246,16 +240,16 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
                     }
                 }}
                 item { Section("Contact Support") {
-                    RowItem(Icons.Filled.Person, "Contact support", "Send a support request") { subject = ""; description = ""; info = "Support form is ready; connect it to your support email or ticket API before public launch." }
-                    RowItem(Icons.Filled.Close, "Report a problem", "Tell us what went wrong") { subject = ""; description = ""; info = "Problem reporting UI is ready; connect it to your reporting endpoint before public launch." }
-                    RowItem(Icons.Filled.Check, "Send feedback", "Help improve the product") { feedback = ""; info = "Feedback UI is ready; connect it to a feedback endpoint before public launch." }
+                    RowItem(Icons.Filled.Person, "Contact support", "Send a support request") { info = "Support form is ready; connect it to your support email or ticket API before public launch." }
+                    RowItem(Icons.Filled.Close, "Report a problem", "Tell us what went wrong") { info = "Problem reporting UI is ready; connect it to your reporting endpoint before public launch." }
+                    RowItem(Icons.Filled.Check, "Send feedback", "Help improve the product") { info = "Feedback UI is ready; connect it to a feedback endpoint before public launch." }
                 }}
                 item { Section("App Information") {
                     RowItem(Icons.Filled.Check, "App version", "Niche Trend Radar • v1.0") { info = "Niche Trend Radar v1.0" }
                     RowItem(Icons.Filled.Check, "Build number", "Provided by the release build") { info = "Build number is available from the installed APK/build metadata." }
                     RowItem(Icons.Filled.Check, "API status", "Connected service status") { info = "The app uses the configured Niche Trend Radar API over HTTPS. Live health monitoring can be added later." }
-                    RowItem(Icons.Filled.Check, "Privacy Policy", "Privacy and data handling") { info = "Add your published Privacy Policy URL before public launch." }
-                    RowItem(Icons.Filled.Check, "Terms of Service", "Terms for using the app") { info = "Add your published Terms of Service URL before public launch." }
+                    RowItem(Icons.Filled.Check, "Privacy Policy", "Privacy and data handling") { navController.navigate("privacy_policy") }
+                    RowItem(Icons.Filled.Check, "Terms of Service", "Terms for using the app") { navController.navigate("terms_of_service") }
                     RowItem(Icons.Filled.Check, "Open-source licenses", "Third-party software notices") { info = "Add a generated third-party license screen before public launch." }
                 }}
             }
@@ -293,7 +287,7 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
             text = { Text("This action will remove your profile, saved ideas and associated account data. This cannot be undone.", color = TextSecondary) },
             confirmButton = { TextButton(onClick = {
                 deleteDialog = false
-                info = "Account deletion is not enabled yet because a protected backend delete-account endpoint is required."
+                confirmDeleteAccount = true
             }) { Text("Delete Account", color = PrimaryBright, fontWeight = FontWeight.Bold) } },
             dismissButton = { TextButton(onClick = { deleteDialog = false }) { Text("Cancel", color = TextSecondary) } })
     }
