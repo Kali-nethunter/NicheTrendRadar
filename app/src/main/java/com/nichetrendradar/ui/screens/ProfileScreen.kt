@@ -8,12 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -118,7 +116,7 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
                 border = androidx.compose.foundation.BorderStroke(1.dp, Border)) {
                 Column(Modifier.padding(18.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Radar, contentDescription = null, tint = PrimaryBright, modifier = Modifier.size(22.dp))
+                        Icon(Icons.Filled.Check, contentDescription = null, tint = PrimaryBright, modifier = Modifier.size(22.dp))
                         Text("Current radar", color = TextPrimary, style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 10.dp))
                         Spacer(Modifier.weight(1f))
@@ -155,7 +153,7 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
                     is UiState.Success -> "${saved.data.size} saved ideas"
                     else -> "Open your saved content library"
                 }
-                ProfileRow(Icons.Filled.BookmarkBorder, "Saved Ideas", countText) { navController.navigate("saved") }
+                ProfileRow(Icons.Filled.Person, "Saved Ideas", countText) { navController.navigate("saved") }
             }
         }
 
@@ -182,7 +180,7 @@ fun ProfileScreen(navController: NavController, viewModel: MainViewModel) {
             Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(containerColor = Surface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Border)) {
-                ProfileRow(Icons.Filled.HelpOutline, "Help & support", "FAQ, feedback and app information") { showHelpInfo = true }
+                ProfileRow(Icons.Filled.Check, "Help & support", "FAQ, feedback and app information") { showHelpInfo = true }
             }
         }
 
