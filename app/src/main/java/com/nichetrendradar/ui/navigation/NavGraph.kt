@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nichetrendradar.ui.screens.DashboardScreen
 import com.nichetrendradar.ui.screens.IdeaScreen
+import com.nichetrendradar.ui.screens.LegalDocumentScreen
 import com.nichetrendradar.ui.screens.LoginScreen
 import com.nichetrendradar.ui.screens.OnboardingScreen
 import com.nichetrendradar.ui.screens.ProfileScreen
@@ -35,5 +36,8 @@ fun NavGraph(viewModel: MainViewModel) {
         composable("security_privacy") { SettingsScreen(navController, "security", viewModel) }
         composable("account_privacy") { SettingsScreen(navController, "account", viewModel) }
         composable("help_support") { SettingsScreen(navController, "help", viewModel) }
+        composable("privacy_policy") { LegalDocumentScreen(navController, LegalDocument.PRIVACY) }
+        composable("terms_of_service") { LegalDocumentScreen(navController, LegalDocument.TERMS) }
+        composable("data_usage_policy") { LegalDocumentScreen(navController, LegalDocument.DATA_USAGE) }
     }
 }
