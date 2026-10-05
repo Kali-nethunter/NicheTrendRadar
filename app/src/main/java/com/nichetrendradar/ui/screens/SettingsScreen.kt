@@ -2,7 +2,6 @@ package com.nichetrendradar.ui.screens
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -64,9 +63,6 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
     var confirmClearHistory by remember { mutableStateOf(false) }
     var confirmDeleteAccount by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
-    var subject by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var feedback by remember { mutableStateOf("") }
     var personalized by remember { mutableStateOf(prefs.getBoolean("personalized_recommendations", true)) }
     var analytics by remember { mutableStateOf(prefs.getBoolean("usage_analytics", true)) }
     var marketing by remember { mutableStateOf(prefs.getBoolean("marketing_emails", false)) }
@@ -110,16 +106,6 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
                 }}
                 item { Section("Password & Authentication") {
                     RowItem(Icons.Filled.Lock, "Change password", "Update your account password") { changePasswordDialog = true }
-                    RowItem(Icons.Filled.Lock, "Password strength", "Use a unique password with 8+ characters") {
-                        info = "Use a unique password with upper/lowercase letters, numbers and symbols."
-                    }
-                    RowItem(Icons.Filled.Lock, "Forgot password", "Open a password recovery request") { val i = Intent(Intent.ACTION_SENDTO).apply { data = Uri.parse("mailto:"); putExtra(Intent.EXTRA_SUBJECT, "Niche Trend Radar — Password Recovery"); putExtra(Intent.EXTRA_TEXT, "Please help me recover access to my account. Email: $email") }; runCatching { context.startActivity(i) } }
-                    RowItem(Icons.Filled.Check, "2FA / biometric authentication", "Protect this device with biometric authentication") { info = "Biometric protection is ready to be connected to the device lock in the next security build." }
-                }}
-                item { Section("Data Privacy") {
-                    RowItem(Icons.Filled.Person, "What data the app stores", "Account, radar configuration and saved ideas") {
-                        info = "The app stores account information, selected niche, keywords, platforms and saved content ideas needed for the app experience."
-                    }
                     RowItem(Icons.Filled.Check, "How trend/search data is used", "Used to request radar results and content ideas") {
                         info = "Your niche, keywords and selected platform provide context for trend requests and AI-generated content ideas."
                     }
