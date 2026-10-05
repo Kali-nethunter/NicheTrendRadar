@@ -436,7 +436,7 @@ def export_account(authorization: str | None = Header(default=None)) -> dict:
         "radar_history": [{"id": r["id"], "niche_id": r["niche_id"], "platform": r["platform"], "created_at": r["created_at"]} for r in history],
     }
 
-@app.delete("/api/ideas/saved")
+@app.delete("/api/ideas/clear")
 def clear_saved_ideas(authorization: str | None = Header(default=None)) -> dict:
     user = get_current_user(authorization)
     with closing(get_db()) as db:
