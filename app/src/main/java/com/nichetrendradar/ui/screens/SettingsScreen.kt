@@ -1,6 +1,8 @@
 package com.nichetrendradar.ui.screens
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -57,6 +59,10 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
     val email = viewModel.accountEmail ?: "Account"
     var info by remember { mutableStateOf<String?>(null) }
     var sessionDialog by remember { mutableStateOf(false) }
+    var changePasswordDialog by remember { mutableStateOf(false) }
+    var confirmClearSaved by remember { mutableStateOf(false) }
+    var confirmClearHistory by remember { mutableStateOf(false) }
+    var confirmDeleteAccount by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
     var subject by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -100,15 +106,15 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
                     RowItem(Icons.Filled.Person, "Sign out from this device", "End the current authenticated session") {
                         viewModel.logout { navController.navigate("login") { popUpTo(0) { inclusive = true } } }
                     }
-                    RowItem(Icons.Filled.Lock, "Sign out of all devices", "Future-ready multi-device session control", false)
+                    RowItem(Icons.Filled.Lock, "Sign out of all devices", "Sign out every other active session") { viewModel.signOutAllDevices { _, message -> info = message } }
                 }}
                 item { Section("Password & Authentication") {
-                    RowItem(Icons.Filled.Lock, "Change password", "Update your account password", false)
+                    RowItem(Icons.Filled.Lock, "Change password", "Update your account password") { changePasswordDialog = true }
                     RowItem(Icons.Filled.Lock, "Password strength", "Use a unique password with 8+ characters") {
                         info = "Use a unique password with upper/lowercase letters, numbers and symbols."
                     }
-                    RowItem(Icons.Filled.Lock, "Forgot password", "Password recovery flow", false)
-                    RowItem(Icons.Filled.Check, "2FA / biometric authentication", "Future security option", false)
+                    RowItem(Icons.Filled.Lock, "Forgot password", "Open a password recovery request") { val i = Intent(Intent.ACTION_SENDTO).apply { data = Uri.parse("mailto:"); putExtra(Intent.EXTRA_SUBJECT, "Niche Trend Radar — Password Recovery"); putExtra(Intent.EXTRA_TEXT, "Please help me recover access to my account. Email: $email") }; runCatching { context.startActivity(i) } }
+                    RowItem(Icons.Filled.Check, "2FA / biometric authentication", "Protect this device with biometric authentication") { info = "Biometric protection is ready to be connected to the device lock in the next security build." }
                 }}
                 item { Section("Data Privacy") {
                     RowItem(Icons.Filled.Person, "What data the app stores", "Account, radar configuration and saved ideas") {
@@ -125,12 +131,10 @@ fun SettingsScreen(navController: NavController, mode: String, viewModel: MainVi
                     }
                 }}
                 item { Section("Data Controls") {
-                    RowItem(Icons.Filled.Check, "Download my data", "Export account data", false)
-                    RowItem(Icons.Filled.Check, "Clear saved ideas", "Remove saved content from your Library") {
-                        info = "For safety, saved ideas are currently deleted individually from the Library."
-                    }
-                    RowItem(Icons.Filled.Check, "Clear search / radar history", "Remove activity history", false)
-                    RowItem(Icons.Filled.Close, "Delete account", "Permanent account deletion", false)
+                    RowItem(Icons.Filled.Check, "Download my data", "Export account data as JSON") { viewModel.exportAccount { ok, data -> if (ok) { val share = Intent(Intent.ACTION_SEND).apply { type = "application/json"; putExtra(Intent.EXTRA_TEXT, data) }; runCatching { context.startActivity(Intent.createChooser(share, "Export account data")) } } else info = data } }
+                    RowItem(Icons.Filled.Check, "Clear saved ideas", "Remove every saved idea from your Library") { confirmClearSaved = true }
+                    RowItem(Icons.Filled.Check, "Clear search / radar history", "Remove stored radar activity") { confirmClearHistory = true }
+                    RowItem(Icons.Filled.Close, "Delete account", "Permanently remove your account and data") { confirmDeleteAccount = true }
                 }}
                 item { Section("Privacy Documents") {
                     RowItem(Icons.Filled.Check, "Privacy Policy", "How account and app data is handled") {
