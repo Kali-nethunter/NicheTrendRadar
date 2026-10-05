@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +51,7 @@ private fun PlatformPill(name: String, selected: Boolean, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DashboardHero(niche: String, email: String?, onChangeNiche: () -> Unit) {
+private fun DashboardHero(niche: String, email: String?) {
     Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp))
         .background(Brush.linearGradient(listOf(SurfaceElevated, Color(0xFF1D1740), Surface)))
         .border(1.dp, Border, RoundedCornerShape(28.dp)).padding(22.dp)) {
@@ -58,16 +60,6 @@ private fun DashboardHero(niche: String, email: String?, onChangeNiche: () -> Un
             Text("Your radar is live.", color = TextPrimary, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 6.dp))
             Text("Discover signals in " + niche + " and turn momentum into content before the feed gets crowded.",
                 color = TextSecondary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 7.dp))
-            Surface(
-                onClick = onChangeNiche,
-                shape = RoundedCornerShape(12.dp),
-                color = Primary.copy(alpha = .12f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Primary.copy(alpha = .25f)),
-                modifier = Modifier.padding(top = 14.dp)
-            ) {
-                Text("Change niche  →", color = PrimaryBright, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
-            }
             if (!email.isNullOrBlank()) Text(email, color = TextSecondary, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 12.dp))
         }
     }
@@ -106,23 +98,25 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                     Text("Find trends. Create faster.", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
                 }
             },
-            navigationIcon = {},
-            actions = {
-                IconButton(onClick = { navController.navigate("onboarding") }) {
-                    Text(
-                        "‹",
-                        color = PrimaryBright,
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Medium
+            navigationIcon = {
+                IconButton(
+                    onClick = { navController.navigate("onboarding") },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = PrimaryBright
                     )
                 }
-            }
+            },
+            actions = {}
         )
     }) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().background(Background).padding(padding),
             contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)) {
-            item { DashboardHero(nicheName, viewModel.accountEmail) { navController.navigate("onboarding") } }
+            item { DashboardHero(nicheName, viewModel.accountEmail) }
             item {
                 when (val s = trendsState) {
                     is UiState.Success -> MetricsPanel(s.data)
