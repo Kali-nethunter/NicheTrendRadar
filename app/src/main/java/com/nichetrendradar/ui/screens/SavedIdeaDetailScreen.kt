@@ -10,6 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,7 +39,11 @@ fun SavedIdeaDetailScreen(navController: NavController, viewModel: MainViewModel
                     Text("Saved to your library", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
                 }
             }, navigationIcon = {
-                TextButton(onClick = { navController.popBackStack() }) { Text("Back", color = PrimaryBright, fontWeight = FontWeight.Bold) }
+                IconButton(onClick = { navController.popBackStack() }, modifier = Modifier.padding(start = 8.dp).size(44.dp)) {
+                    Surface(shape = RoundedCornerShape(14.dp), color = SurfaceElevated) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = PrimaryBright, modifier = Modifier.padding(10.dp))
+                    }
+                }
             })
         }) { padding ->
         Column(Modifier.fillMaxSize().background(Background).verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = 18.dp, vertical = 14.dp)) {
