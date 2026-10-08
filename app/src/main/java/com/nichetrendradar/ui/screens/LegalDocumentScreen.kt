@@ -89,7 +89,6 @@ fun LegalDocumentScreen(navController: NavController, document: LegalDocument) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = PrimaryBright)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Background)
             )
         }
     ) { padding ->
