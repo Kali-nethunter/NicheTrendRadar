@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +34,7 @@ fun SavedIdeasScreen(navController: NavController, viewModel: MainViewModel) {
         }, navigationIcon = {
             IconButton(onClick = { navController.popBackStack() }, modifier = Modifier.padding(start = 8.dp).size(44.dp)) {
                 Surface(shape = RoundedCornerShape(14.dp), color = SurfaceElevated) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = PrimaryBright, modifier = Modifier.padding(10.dp))
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back", tint = PrimaryBright, modifier = Modifier.padding(10.dp))
                 }
             }
         })
