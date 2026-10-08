@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.nichetrendradar.ui.screens.DashboardScreen
 import com.nichetrendradar.ui.screens.IdeaScreen
 import com.nichetrendradar.ui.screens.LegalDocumentScreen
+import com.nichetrendradar.ui.screens.LegalDocument
 import com.nichetrendradar.ui.screens.LoginScreen
 import com.nichetrendradar.ui.screens.OnboardingScreen
 import com.nichetrendradar.ui.screens.ProfileScreen
