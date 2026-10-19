@@ -95,8 +95,12 @@ private fun ProgressStep(number: String, title: String, active: Boolean) {
 fun OnboardingScreen(viewModel: MainViewModel, navController: NavController, onComplete: () -> Unit) {
     var niche by remember { mutableStateOf("") }
     var keywords by remember { mutableStateOf("") }
+    var showValidationMessage by remember { mutableStateOf(false) }
     val createState by viewModel.createNicheState.collectAsState()
     val loading = createState is UiState.Loading
+    val hasNiche = niche.trim().isNotEmpty()
+    val parsedKeywords = keywords.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    val hasKeywords = parsedKeywords.isNotEmpty()
 
     Column(
         modifier = Modifier
@@ -201,7 +205,11 @@ fun OnboardingScreen(viewModel: MainViewModel, navController: NavController, onC
 
                 OutlinedTextField(
                     value = niche,
-                    onValueChange = { niche = it; viewModel.clearCreateNicheState() },
+                    onValueChange = {
+                        niche = it
+                        showValidationMessage = false
+                        viewModel.clearCreateNicheState()
+                    },
                     label = { Text("Niche") },
                     placeholder = { Text("AI, fitness, finance…") },
                     singleLine = true,
@@ -212,7 +220,11 @@ fun OnboardingScreen(viewModel: MainViewModel, navController: NavController, onC
 
                 OutlinedTextField(
                     value = keywords,
-                    onValueChange = { keywords = it; viewModel.clearCreateNicheState() },
+                    onValueChange = {
+                        keywords = it
+                        showValidationMessage = false
+                        viewModel.clearCreateNicheState()
+                    },
                     label = { Text("Keywords") },
                     placeholder = { Text("AI tools, agents, automation…") },
                     singleLine = true,
@@ -227,6 +239,19 @@ fun OnboardingScreen(viewModel: MainViewModel, navController: NavController, onC
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(top = 8.dp)
                 )
+
+                if (showValidationMessage && (!hasNiche || !hasKeywords)) {
+                    Text(
+                        text = when {
+                            !hasNiche && !hasKeywords -> "Please enter a niche and at least one keyword."
+                            !hasNiche -> "Please enter your niche to continue."
+                            else -> "Please enter at least one keyword to continue."
+                        },
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
 
                 when (createState) {
                     UiState.Idle -> Unit
@@ -258,10 +283,14 @@ fun OnboardingScreen(viewModel: MainViewModel, navController: NavController, onC
 
                 Button(
                     onClick = {
-                        val ks = keywords.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                        if (!hasNiche || !hasKeywords) {
+                            showValidationMessage = true
+                            return@Button
+                        }
+                        showValidationMessage = false
                         viewModel.createNiche(
-                            niche.ifBlank { "General" },
-                            ks,
+                            niche.trim(),
+                            parsedKeywords,
                             listOf("YouTube", "Instagram", "LinkedIn")
                         ) { onComplete() }
                     },
