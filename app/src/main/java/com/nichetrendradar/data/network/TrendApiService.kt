@@ -7,6 +7,9 @@ interface TrendApiService {
     @POST("api/auth/signup")
     suspend fun signup(@Body request: AuthRequest): AuthResponse
 
+    @POST("api/auth/guest")
+    suspend fun guestLogin(): AuthResponse
+
     @POST("api/auth/login")
     suspend fun login(@Body request: AuthRequest): AuthResponse
 
