@@ -186,6 +186,22 @@ def signup(request: AuthRequest) -> AuthResponse:
         db.commit()
     return AuthResponse(token=token, user_id=user_id, email=email)
 
+@app.post("/api/auth/guest", response_model=AuthResponse)
+def guest_login() -> AuthResponse:
+    """Create a server-backed anonymous account with its own isolated data scope."""
+    token = secrets.token_urlsafe(32)
+    guest_email = f"guest-{secrets.token_hex(16)}@guest.nichetrendradar.local"
+    guest_password = secrets.token_urlsafe(48)
+    with closing(get_db()) as db:
+        cursor = db.execute(
+            "INSERT INTO users (email, password_hash) VALUES (?, ?)",
+            (guest_email, hash_password(guest_password)),
+        )
+        user_id = cursor.lastrowid
+        db.execute("INSERT INTO sessions (token, user_id) VALUES (?, ?)", (token, user_id))
+        db.commit()
+    return AuthResponse(token=token, user_id=user_id, email="Guest User")
+
 @app.post("/api/auth/login", response_model=AuthResponse)
 def login(request: AuthRequest) -> AuthResponse:
     email = request.email.strip().lower()
