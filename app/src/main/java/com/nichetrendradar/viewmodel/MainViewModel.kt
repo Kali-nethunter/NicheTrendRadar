@@ -93,7 +93,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _authState.value = UiState.Loading
             try {
                 val response = if (createAccount) repository.signup(email, password) else repository.login(email, password)
-                preferences.edit().putString("auth_token", response.token).putString("account_email", response.email).putInt("user_id", response.user_id).apply()
+                preferences.edit().putString("auth_token", response.token).putString("account_email", response.email).putInt("user_id", response.user_id).putBoolean("is_guest", false).apply()
                 _authState.value = UiState.Success(response)
                 onSuccess()
             } catch (e: HttpException) {
@@ -105,12 +105,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun continueAsGuest(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _authState.value = UiState.Loading
+            try {
+                val response = repository.guestLogin()
+                preferences.edit()
+                    .putString("auth_token", response.token)
+                    .putString("account_email", response.email)
+                    .putInt("user_id", response.user_id)
+                    .putBoolean("is_guest", true)
+                    .apply()
+                _authState.value = UiState.Success(response)
+                onSuccess()
+            } catch (e: HttpException) {
+                val body = e.response()?.errorBody()?.string()?.trim()
+                _authState.value = UiState.Error(body ?: "Guest access failed (" + e.code() + ")")
+            } catch (e: Exception) {
+                _authState.value = UiState.Error(e.message ?: "Guest access failed")
+            }
+        }
+    }
+
     fun clearAuthState() { _authState.value = UiState.Idle }
 
     fun logout(onComplete: () -> Unit) {
         viewModelScope.launch {
             try { if (isLoggedIn) repository.logout() } catch (_: Exception) { }
-            preferences.edit().remove("auth_token").remove("account_email").remove("user_id").remove("niche_id").remove("niche_name").remove("niche_keywords").remove("niche_platforms").apply()
+            preferences.edit().remove("auth_token").remove("account_email").remove("user_id").remove("niche_id").remove("niche_name").remove("niche_keywords").remove("niche_platforms").remove("is_guest").apply()
             currentNiche = null
             _trendsState.value = UiState.Idle
             _savedState.value = UiState.Idle
