@@ -243,9 +243,9 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
                         modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
+                        Divider(modifier = Modifier.weight(1f), color = Border)
                         Text("  OR  ", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
-                        HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
+                        Divider(modifier = Modifier.weight(1f), color = Border)
                     }
                     OutlinedButton(
                         onClick = { viewModel.continueAsGuest(onSuccess) },
