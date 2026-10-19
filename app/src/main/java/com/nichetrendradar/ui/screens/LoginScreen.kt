@@ -237,6 +237,32 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
                         else "New to Niche Trend Radar? Create account"
                     )
                 }
+
+                if (!createAccount) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
+                        Text("  OR  ", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Border)
+                    }
+                    OutlinedButton(
+                        onClick = { viewModel.continueAsGuest(onSuccess) },
+                        enabled = !loading,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.fillMaxWidth().height(52.dp)
+                    ) {
+                        Text(if (loading) "Please wait…" else "Continue as Guest", fontWeight = FontWeight.SemiBold)
+                    }
+                    Text(
+                        "Guest data is saved under a temporary guest account. Create an account to keep access tied to your email.",
+                        color = TextSecondary,
+                        style = MaterialTheme.typography.labelSmall,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    )
+                }
             }
         }
 
