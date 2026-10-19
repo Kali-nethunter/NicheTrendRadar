@@ -256,7 +256,7 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
                         Text(if (loading) "Please wait…" else "Continue as Guest", fontWeight = FontWeight.SemiBold)
                     }
                     Text(
-                        "Guest data is saved under a temporary guest account. Create an account to keep access tied to your email.",
+                        "Guest data is saved under this guest session. If you sign out or clear app data, you may lose access to it.",
                         color = TextSecondary,
                         style = MaterialTheme.typography.labelSmall,
                         textAlign = TextAlign.Center,
