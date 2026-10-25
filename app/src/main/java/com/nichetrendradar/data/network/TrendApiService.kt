@@ -10,6 +10,9 @@ interface TrendApiService {
     @POST("api/auth/guest")
     suspend fun guestLogin(): AuthResponse
 
+    @POST("api/auth/firebase")
+    suspend fun firebaseLogin(@Body request: Map<String, String>): AuthResponse
+
     @POST("api/auth/login")
     suspend fun login(@Body request: AuthRequest): AuthResponse
 
