@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "807809422515",
+    "project_id": "nichetrendradar",
+    "storage_bucket": "nichetrendradar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807809422515:android:91feb3ed5a8f1fd332ccc6",
+        "android_client_info": {
+          "package_name": "com.nichetrendradar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807809422515-fra767uekubnkm72h7f4fitlvu5qm4fu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nichetrendradar",
+            "certificate_hash": "90ac9bbbfa6b08441dad9a8b6134383a8733adf2"
+          }
+        },
+        {
+          "client_id": "807809422515-onhadnhh1fa0rrjslivkb15q77ut299m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyMsK2xAlOeJv8W5pGNAUFWiHi-_NQWRw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "807809422515-onhadnhh1fa0rrjslivkb15q77ut299m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
