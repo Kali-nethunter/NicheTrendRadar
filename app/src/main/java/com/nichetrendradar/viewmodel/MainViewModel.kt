@@ -105,6 +105,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun authenticateWithFirebaseToken(idToken: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _authState.value = UiState.Loading
+            try {
+                val response = repository.firebaseLogin(idToken)
+                preferences.edit()
+                    .putString("auth_token", response.token)
+                    .putString("account_email", response.email)
+                    .putInt("user_id", response.user_id)
+                    .putBoolean("is_guest", false)
+                    .apply()
+                _authState.value = UiState.Success(response)
+                onSuccess()
+            } catch (e: HttpException) {
+                val body = e.response()?.errorBody()?.string()?.trim()
+                _authState.value = UiState.Error(body ?: "Google sign-in could not connect to the account server (" + e.code() + ")")
+            } catch (e: Exception) {
+                _authState.value = UiState.Error(e.message ?: "Google sign-in failed")
+            }
+        }
+    }
+
     fun continueAsGuest(onSuccess: () -> Unit) {
         viewModelScope.launch {
             _authState.value = UiState.Loading
