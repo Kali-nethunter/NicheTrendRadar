@@ -1,5 +1,9 @@
 package com.nichetrendradar.ui.screens
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,8 +24,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import org.json.JSONObject
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 import com.nichetrendradar.data.models.UiState
 import com.nichetrendradar.ui.theme.*
 import com.nichetrendradar.viewmodel.MainViewModel
@@ -72,6 +82,50 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val googleSignInClient = remember(context) {
+        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(com.nichetrendradar.R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(context, options)
+    }
+    val googleLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            try {
+                val account = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                    .getResult(ApiException::class.java)
+                val idToken = account.idToken
+                if (idToken.isNullOrBlank()) {
+                    Toast.makeText(context, "Google did not return an ID token. Check OAuth setup.", Toast.LENGTH_LONG).show()
+                } else {
+                    val credential = GoogleAuthProvider.getCredential(idToken, null)
+                    FirebaseAuth.getInstance().signInWithCredential(credential)
+                        .addOnSuccessListener {
+                            FirebaseAuth.getInstance().currentUser?.getIdToken(true)
+                                ?.addOnSuccessListener { tokenResult ->
+                                    val firebaseToken = tokenResult.token
+                                    if (firebaseToken.isNullOrBlank()) {
+                                        Toast.makeText(context, "Could not get Firebase token.", Toast.LENGTH_LONG).show()
+                                    } else {
+                                        viewModel.authenticateWithFirebaseToken(firebaseToken, onSuccess)
+                                    }
+                                }
+                                ?.addOnFailureListener { error ->
+                                    Toast.makeText(context, error.localizedMessage ?: "Could not get Firebase token.", Toast.LENGTH_LONG).show()
+                                }
+                        }
+                        .addOnFailureListener { error ->
+                            Toast.makeText(context, error.localizedMessage ?: "Firebase sign-in failed.", Toast.LENGTH_LONG).show()
+                        }
+                }
+            } catch (error: ApiException) {
+                Toast.makeText(context, "Google sign-in failed: " + error.statusCode, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
     val authState by viewModel.authState.collectAsState()
     val loading = authState is UiState.Loading
     val passwordsMatch = !createAccount || password == confirmPassword
@@ -247,6 +301,15 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
                         Text("  OR  ", color = TextSecondary, style = MaterialTheme.typography.labelSmall)
                         Divider(modifier = Modifier.weight(1f), color = Border)
                     }
+                    OutlinedButton(
+                        onClick = { googleLauncher.launch(googleSignInClient.signInIntent) },
+                        enabled = !loading,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.fillMaxWidth().height(52.dp)
+                    ) {
+                        Text("Continue with Google", fontWeight = FontWeight.SemiBold)
+                    }
+                    Spacer(Modifier.height(10.dp))
                     OutlinedButton(
                         onClick = { viewModel.continueAsGuest(onSuccess) },
                         enabled = !loading,
