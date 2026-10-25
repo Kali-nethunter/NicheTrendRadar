@@ -12,6 +12,8 @@ from typing import List
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+import firebase_admin
+from firebase_admin import auth as firebase_auth, credentials
 
 APP_NAME = "Niche Trend Radar API"
 DB_PATH = Path(os.getenv("DATABASE_PATH", str(Path(__file__).with_name("niche_trend_radar.db"))))
@@ -58,6 +60,9 @@ class AuthResponse(BaseModel):
     token: str
     user_id: int
     email: str
+
+class FirebaseAuthRequest(BaseModel):
+    id_token: str
 
 class HealthResponse(BaseModel):
     status: str
@@ -201,6 +206,53 @@ def guest_login() -> AuthResponse:
         db.execute("INSERT INTO sessions (token, user_id) VALUES (?, ?)", (token, user_id))
         db.commit()
     return AuthResponse(token=token, user_id=user_id, email="Guest User")
+
+def get_firebase_admin_app():
+    """Initialize Firebase Admin from a Render environment variable, never a checked-in key file."""
+    existing = firebase_admin._apps.get("[DEFAULT]")
+    if existing:
+        return existing
+    service_account_json = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
+    if not service_account_json:
+        raise HTTPException(
+            status_code=503,
+            detail="Google sign-in server configuration is incomplete. Set GOOGLE_SERVICE_ACCOUNT_JSON in the backend environment.",
+        )
+    try:
+        service_account_info = json.loads(service_account_json)
+        return firebase_admin.initialize_app(credentials.Certificate(service_account_info))
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Google sign-in server credentials are invalid") from exc
+
+
+@app.post("/api/auth/firebase", response_model=AuthResponse)
+def firebase_login(request: FirebaseAuthRequest) -> AuthResponse:
+    """Verify a Firebase ID token, then issue the app's existing backend session."""
+    get_firebase_admin_app()
+    try:
+        claims = firebase_auth.verify_id_token(request.id_token, check_revoked=True)
+    except Exception as exc:
+        raise HTTPException(status_code=401, detail="Google sign-in token is invalid or expired") from exc
+
+    email = str(claims.get("email", "")).strip().lower()
+    if not email or claims.get("email_verified") is not True:
+        raise HTTPException(status_code=401, detail="Use a Google account with a verified email address")
+
+    token = secrets.token_urlsafe(32)
+    with closing(get_db()) as db:
+        user = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+        if user is None:
+            cursor = db.execute(
+                "INSERT INTO users (email, password_hash) VALUES (?, ?)",
+                (email, hash_password(secrets.token_urlsafe(48))),
+            )
+            user_id = cursor.lastrowid
+        else:
+            user_id = user["id"]
+        db.execute("INSERT INTO sessions (token, user_id) VALUES (?, ?)", (token, user_id))
+        db.commit()
+    return AuthResponse(token=token, user_id=user_id, email=email)
+
 
 @app.post("/api/auth/login", response_model=AuthResponse)
 def login(request: AuthRequest) -> AuthResponse:
