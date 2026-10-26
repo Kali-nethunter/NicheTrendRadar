@@ -125,7 +125,32 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
                 Toast.makeText(context, "Google sign-in failed: " + error.statusCode, Toast.LENGTH_LONG).show()
             }
         } else {
-            Toast.makeText(context, "Google sign-in was cancelled or could not start. Please try again.", Toast.LENGTH_LONG).show()
+            // Preserve the real Google Sign-In failure reason instead of hiding it
+            // behind a generic cancellation message.
+            val intentData = result.data
+            if (intentData != null) {
+                try {
+                    GoogleSignIn.getSignedInAccountFromIntent(intentData)
+                        .getResult(ApiException::class.java)
+                    Toast.makeText(
+                        context,
+                        "Google sign-in did not complete (resultCode: ${result.resultCode}). Please retry and share this code.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } catch (error: ApiException) {
+                    Toast.makeText(
+                        context,
+                        "Google sign-in failed: ${error.statusCode}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } else {
+                Toast.makeText(
+                    context,
+                    "Google sign-in returned no result data (resultCode: ${result.resultCode}). Please retry and share this code.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
     val authState by viewModel.authState.collectAsState()
