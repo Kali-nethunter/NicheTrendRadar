@@ -124,6 +124,8 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
             } catch (error: ApiException) {
                 Toast.makeText(context, "Google sign-in failed: " + error.statusCode, Toast.LENGTH_LONG).show()
             }
+        } else {
+            Toast.makeText(context, "Google sign-in was cancelled or could not start. Please try again.", Toast.LENGTH_LONG).show()
         }
     }
     val authState by viewModel.authState.collectAsState()
