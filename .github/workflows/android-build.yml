@@ -3,6 +3,8 @@ name: Android APK Build
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -23,6 +25,15 @@ jobs:
         uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
+
+      # Keep the same debug signing key across CI runs so Firebase SHA-1
+      # remains stable. Without this cache, GitHub-hosted runners generate
+      # a fresh debug.keystore on every run and Google Sign-In error 10 returns.
+      - name: Cache Android debug signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: nichetrendradar-debug-keystore-v1
 
       - name: Install Gradle
         uses: gradle/actions/setup-gradle@v4
