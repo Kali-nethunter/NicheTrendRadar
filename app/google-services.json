@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "807809422515-fra767uekubnkm72h7f4fitlvu5qm4fu.apps.googleusercontent.com",
+          "client_id": "807809422515-o1t0q4sfnhiep2njeq62gbgkgf223lte.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.nichetrendradar",
-            "certificate_hash": "90ac9bbbfa6b08441dad9a8b6134383a8733adf2"
+            "certificate_hash": "05845b33c4ebd33d8089de50cee25ccd2ffaf2b2"
           }
         },
         {
@@ -36,12 +36,11 @@
           "other_platform_oauth_client": [
             {
               "client_id": "807809422515-onhadnhh1fa0rrjslivkb15q77ut299m.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "client_type": 3
         }
-      }
+      ]
     }
+  }
   ],
   "configuration_version": "1"
 }
