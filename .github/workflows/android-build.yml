@@ -24,6 +24,14 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
+      # Cache the generated debug keystore so the SHA-1 stays stable across
+      # subsequent GitHub-hosted runner builds.
+      - name: Cache Android debug signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: nichetrendradar-debug-keystore-v1
+
       - name: Install Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
