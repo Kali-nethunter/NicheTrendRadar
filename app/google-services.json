@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "807809422515-1msj5t10fpaagek127g5u1pl3usub0n8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nichetrendradar",
+            "certificate_hash": "2602f437b9c2d569d2fe9b603e26c7f897309910"
+          }
+        },
+        {
           "client_id": "807809422515-ks46o9qe0rdd6iko52ld9d28sh8buec1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
