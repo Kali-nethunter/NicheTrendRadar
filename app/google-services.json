@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "807809422515-kbebnueh9br6vnbq15vg590hj629m539.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nichetrendradar",
+            "certificate_hash": "c2e1e61a701e07d31f4ec1f78188e4ee283ce830"
+          }
+        },
+        {
           "client_id": "807809422515-ks46o9qe0rdd6iko52ld9d28sh8buec1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
