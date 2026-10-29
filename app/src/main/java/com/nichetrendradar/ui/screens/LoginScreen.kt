@@ -122,7 +122,42 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
                         }
                 }
             } catch (error: ApiException) {
-                Toast.makeText(context, "Google sign-in failed: " + error.statusCode, Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    context,
+                    "Google sign-in failed: ${error.statusCode} (${error.status.message ?: "Unknown Google sign-in error"})",
+                    Toast.LENGTH_LONG
+                ).show()
+            } catch (error: Exception) {
+                Toast.makeText(
+                    context,
+                    error.localizedMessage ?: "Google sign-in could not be completed. Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        } else {
+            // Google Sign-In can return RESULT_CANCELED for both user cancellation
+            // and some configuration failures. Inspect the returned intent so we
+            // can show the actual Google status code instead of silently doing nothing.
+            try {
+                GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                    .getResult(ApiException::class.java)
+                Toast.makeText(
+                    context,
+                    "Google sign-in was not completed (result code: ${result.resultCode}). Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
+            } catch (error: ApiException) {
+                Toast.makeText(
+                    context,
+                    "Google sign-in failed: ${error.statusCode} (${error.status.message ?: "Unknown Google sign-in error"})",
+                    Toast.LENGTH_LONG
+                ).show()
+            } catch (error: Exception) {
+                Toast.makeText(
+                    context,
+                    "Google sign-in was not completed (result code: ${result.resultCode}). ${error.localizedMessage ?: "Please try again."}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
