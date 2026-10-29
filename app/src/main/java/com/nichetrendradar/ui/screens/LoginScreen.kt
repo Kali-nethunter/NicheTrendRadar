@@ -124,7 +124,7 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
             } catch (error: ApiException) {
                 Toast.makeText(
                     context,
-                    "Google sign-in failed: ${error.statusCode} (${error.status.message ?: "Unknown Google sign-in error"})",
+                    "Google sign-in failed: ${error.statusCode} (${error.status.statusMessage ?: "Unknown Google sign-in error"})",
                     Toast.LENGTH_LONG
                 ).show()
             } catch (error: Exception) {
@@ -149,7 +149,7 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit) {
             } catch (error: ApiException) {
                 Toast.makeText(
                     context,
-                    "Google sign-in failed: ${error.statusCode} (${error.status.message ?: "Unknown Google sign-in error"})",
+                    "Google sign-in failed: ${error.statusCode} (${error.status.statusMessage ?: "Unknown Google sign-in error"})",
                     Toast.LENGTH_LONG
                 ).show()
             } catch (error: Exception) {
