@@ -5,6 +5,11 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+# Prevent simultaneous builds from racing to create/cache different debug keys.
+concurrency:
+  group: nichetrendradar-android-build-main
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,10 +29,10 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
-      # Cache the generated debug keystore so the SHA-1 stays stable across
-      # subsequent GitHub-hosted runner builds.
-      - name: Cache Android debug signing key
-        uses: actions/cache@v4
+      # Restore the same debug keystore for every main build. The workflow-level
+      # concurrency group prevents simultaneous cache misses from racing.
+      - name: Restore Android debug signing key
+        uses: actions/cache/restore@v4
         with:
           path: ~/.android/debug.keystore
           key: nichetrendradar-debug-keystore-v1
@@ -42,6 +47,14 @@ jobs:
 
       - name: Print signing fingerprints for Firebase
         run: gradle --no-daemon :app:signingReport
+
+      # Save only if the key did not already exist in the cache.
+      - name: Save Android debug signing key
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: nichetrendradar-debug-keystore-v1
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
