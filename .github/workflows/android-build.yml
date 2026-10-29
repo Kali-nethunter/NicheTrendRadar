@@ -32,6 +32,7 @@ jobs:
       # Restore the same debug keystore for every main build. The workflow-level
       # concurrency group prevents simultaneous cache misses from racing.
       - name: Restore Android debug signing key
+        id: debug-key-cache
         uses: actions/cache/restore@v4
         with:
           path: ~/.android/debug.keystore
@@ -48,9 +49,9 @@ jobs:
       - name: Print signing fingerprints for Firebase
         run: gradle --no-daemon :app:signingReport
 
-      # Save only if the key did not already exist in the cache.
+      # Save the generated key only after the first cache miss.
       - name: Save Android debug signing key
-        if: success()
+        if: success() && steps.debug-key-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: ~/.android/debug.keystore
